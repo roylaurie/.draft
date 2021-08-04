@@ -1,0 +1,6 @@
+.metaroot
+build
+dist
+node_modules
+*.swp
+.idea
