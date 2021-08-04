@@ -44,8 +44,8 @@
   },
   "devDependencies": {
     "ajv-cli": "^5.0.0",
-    "shlex": "^2.1.0",
+    "chai": "^4.3.4",
     "mocha": "^9.0.3",
-    "chai": "^4.3.4"
+    "shlex": "^2.1.0"
   }
 }
