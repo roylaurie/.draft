@@ -1,0 +1,9 @@
+Package: bullfrog
+Version: 2021.1.0
+Section: custom
+Priority: optional
+Architecture: amd64
+Essential: no
+Installed-Size: 1024
+Maintainer: asmov.software
+Description: A bash commandline toolkit for creating bash commandline toolkits

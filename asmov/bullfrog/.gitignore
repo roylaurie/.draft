@@ -1,0 +1,8 @@
+.swp
+.swo
+.idea
+node_modules
+dist
+files/debian-package/*.deb
+.nyc_output
+

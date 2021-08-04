@@ -1,0 +1,112 @@
+{
+    "package": {
+        "name": "common",
+        "namespaces": {
+            "common.sysinfo": {
+                "desc": "Provides system information tools",
+                "operations": {
+                    "default": {
+                        "lang": "bash",
+                        "desc": "Displays a general profile of the system",
+                        "outputs": [ "json" ],
+                        "parameters": { }
+                    }
+                }
+            },
+            "common.lang.version": {
+                "desc": "Displays version information for supported programming languages.",
+                "operations": {
+                    "default": {
+                        "lang": "bash",
+                        "desc": "Displays version information for all supported languages.",
+                        "outputs": [ "json" ],
+                        "parameters": { }
+                    },
+                    "js": {
+                        "lang": "js",
+                        "desc": "Displays the system NodeJS and V8 versions.",
+                        "outputs": [ "json" ],
+                        "parameters": {
+                            "test.param": {
+                                "desc": "A param",
+                                "type": "boolean",
+                                "required": true
+                            },
+                            "t.p": {
+                                "desc": "A param",
+                                "type": "string",
+                                "required": false,
+                                "default": "tada"
+                            },
+                            "enums": {
+                                "desc": "A param",
+                                "type": "string",
+                                "required": true,
+                                "enum": [ "cat", "hat" ]
+                            },
+                            "pos.one": {
+                                "desc": "A param",
+                                "type": "number",
+                                "required": true,
+                                "position": 1
+                            },
+                            "pos.two": {
+                                "desc": "A param",
+                                "type": "number",
+                                "required": true,
+                                "position": 2,
+                                "enum": [ "one", "two", "three" ]
+                            },
+                            "boolz": {
+                                "desc": "A param",
+                                "type": "boolean",
+                                "required": true,
+                                "enum": [ "neg", "pos" ]
+                            }
+                        }
+                    },
+                    "python": {
+                        "lang": "python",
+                        "desc": "Displays the system Python version.",
+                        "outputs": [ "json" ],
+                        "parameters": { }
+                    },
+                    "rust": {
+                        "lang": "rust",
+                        "desc": "Displays the system RustC version.",
+                        "outputs": [ "json" ],
+                        "parameters": { }
+                    },
+                    "java": {
+                        "lang": "java",
+                        "desc": "Displays the system JRE and JDK versions.",
+                        "outputs": [ "json" ],
+                        "parameters": { }
+                    }
+                }
+            },
+            "common.remote": {
+                "desc": "Runs bullfrog commands remotely via SSH",
+                "operations": {
+                    "default": {
+                        "lang": "bash",
+                        "desc": "Displays the current remote host",
+                        "parameters": {
+                        }
+                    },
+                    "install": {
+                        "lang": "bash",
+                        "desc": "Installs bullfrog on the remote machine",
+                        "parameters": {
+                        }
+                    }
+                }
+            }
+        },
+        "aliases": {
+            "help": "common help"
+        }
+    }
+}
+
+
