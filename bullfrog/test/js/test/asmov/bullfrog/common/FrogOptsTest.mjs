@@ -9,7 +9,7 @@ describe(FrogOpts.namepath, () => {
         return shlex.split(cmdline);
     }
 
-    describe('processFor', () => {
+    describe('process', () => {
         const s = {
             passive: 'passive',
             defaults: 'defaults',
@@ -137,5 +137,18 @@ describe(FrogOpts.namepath, () => {
         it('throws error when an invalid boolean parameter is provided');
         it('throws error when an invalid number parameter is provided');
         it('throws error when an invalid enum parameter is provided');
+        it('throws error on undefined parameter config field');
+        it('throws error on missing parameter config fields');
+        it('throws error on wrong type or value for parameter config fields');
+        it('throws error when default and required are both enabled in parameter configs');
     })
+
+    describe('construct', () => {
+        it('throws error on undefined option config field');
+        it('throws error on missing option config fields');
+        it('throws error on wrong type or value for option config fields');
+        it('throws error when default and required are both enabled in option configs');
+        it('throws error on undefined setting field');
+        it('throws error on wrong type or value for setting field');
+    });
 })
