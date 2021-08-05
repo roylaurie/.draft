@@ -46,50 +46,51 @@ export default class FrogOpts {
 
     static #configInputSetting(inputCfg, property, typeofExpected, defaultValue, outputCfg,
                                required=false, restrictions=null, allowed=true) {
-        if (typeof inputCfg[property] != 'undefined') {
-            const value = inputCfg[property];
-
-            if (!allowed) {
-                throw new Error('Illegal config setting for input class');
+        if (typeof inputCfg[property] === 'undefined') {
+            if (required && allowed) {
+                throw new Error(`Missing required input config setting '${property}'`);
             }
 
-            let error = false;
-            switch(typeofExpected) {
-                case 'any':
-                    break;
-                case 'array<string>':
-                    error = !Array.isArray(value);
-                    for (let i = 0, n = value.length; !error && i < n ; ++i) {
-                        error = ( typeof value[i] !== 'string' );
-                    }
-                    break;
-                case 'integer':
-                    error = ( typeof value !== 'number' || !Number.isInteger(value) );
-                    break;
-                case 'char':
-                    error = ( typeof value !== 'string' || value.length !== 1)
-                    break;
-                case 'namespace':
-                    error = ( typeof value !== 'string' || !BullfrogCommon.validNamespace(value) );
-                    break;
-                default:
-                    error = (typeof value !== typeofExpected);
-            }
-
-            if (!error && restrictions !== null) {
-                error = ( restrictions.includes(value) )
-            }
-
-            if (error) {
-                throw new Error(`Illegal value in '${property}' setting for input config '${inputCfg.name}'`);
-            } else {
-                outputCfg[property] = value;
-            }
-        } else if (required && allowed) {
-            throw new Error(`Missing required input config setting '${property}'`);
-        } else {
             outputCfg[property] = defaultValue;
+            return;
+        } else if (!allowed) {
+            throw new Error('Illegal config setting for input class');
         }
+
+        const value = inputCfg[property];
+        let error = false;
+
+        switch(typeofExpected) {
+            case 'any':
+                break;
+            case 'array<string>':
+                error = !Array.isArray(value);
+                for (let i = 0, n = value.length; !error && i < n ; ++i) {
+                    error = ( typeof value[i] !== 'string' );
+                }
+                break;
+            case 'integer':
+                error = ( typeof value !== 'number' || !Number.isInteger(value) );
+                break;
+            case 'char':
+                error = ( typeof value !== 'string' || value.length !== 1)
+                break;
+            case 'namespace':
+                error = ( typeof value !== 'string' || !BullfrogCommon.validNamespace(value) );
+                break;
+            default:
+                error = (typeof value !== typeofExpected);
+        }
+
+        if (!error && restrictions !== null) {
+            error = ( restrictions.includes(value) )
+        }
+
+        if (error) {
+            throw new Error(`Illegal value in '${property}' setting for input config '${inputCfg.name}'`);
+        }
+
+        outputCfg[property] = value;
     }
 
     #optionCfg = {};
