@@ -1,15 +1,34 @@
 'use strict';
 
-import { expect } from 'chai'
+import chai, { expect } from 'chai'
+import bullfrog_chai_plugin from '@asmov/bullfrog/common/test/chai_plugin';
 import FrogOpts from '@asmov/bullfrog/common/FrogOpts';
 import shlex from 'shlex';
+
+chai.use(bullfrog_chai_plugin);
 
 describe(FrogOpts.namepath, () => {
     function shlex_split(cmdline) {
         return shlex.split(cmdline);
     }
 
-    describe('process', () => {
+    describe('constructor', () => {
+        it('is a valid bullfrog class object', () => {
+            expect(new FrogOpts([])).to.be.a.frog_class_object;
+        });
+        it('throws error on undefined option config field');
+        it('throws error on missing option config fields');
+        it('throws error on wrong type or value for option config fields');
+        it('throws error when default and required are both enabled in option configs');
+        it('throws error on undefined setting field');
+        it('throws error on wrong type or value for setting field');
+    });
+
+    describe('prototype.' + FrogOpts.prototype.parse.name + '()', () => {
+        it.skip('covered by process()');
+    });
+
+    describe('prototype.' + FrogOpts.prototype.process.name + '()', () => {
         const s = {
             passive: 'passive',
             defaults: 'defaults',
@@ -142,13 +161,4 @@ describe(FrogOpts.namepath, () => {
         it('throws error on wrong type or value for parameter config fields');
         it('throws error when default and required are both enabled in parameter configs');
     })
-
-    describe('construct', () => {
-        it('throws error on undefined option config field');
-        it('throws error on missing option config fields');
-        it('throws error on wrong type or value for option config fields');
-        it('throws error when default and required are both enabled in option configs');
-        it('throws error on undefined setting field');
-        it('throws error on wrong type or value for setting field');
-    });
 })

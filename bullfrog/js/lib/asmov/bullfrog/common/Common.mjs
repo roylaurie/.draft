@@ -4,9 +4,14 @@ export default class BullfrogCommon {
     static namepath = 'asmov/bullfrog/Common';
 
     static #namespacePattern = /^(?![\d.]+$)(?:[a-z0-9]+(?:\.[a-z0-9]+)*)+$/
+    static #namepathPattern = /^(?![\d.\/]+$)(?:[a-z0-9]+(?:\/[a-z0-9]+)*)+\/(?![\d.\/]+$)(?:[a-zA-Z0-9_]+(?:([._]|::)[a-zA-Z0-9_]+)*)+$/
 
     static validNamespace(str) {
-        return ( BullfrogCommon.#namespacePattern.test(str) );
+        return ( typeof str === 'string' && BullfrogCommon.#namespacePattern.test(str) );
+    }
+
+    static validNamepath(str) {
+        return ( typeof str === 'string' && BullfrogCommon.#namepathPattern.test(str) );
     }
 
     static deepfreeze(object) {
