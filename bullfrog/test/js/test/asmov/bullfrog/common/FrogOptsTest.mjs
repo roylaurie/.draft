@@ -12,7 +12,7 @@ describe(FrogOpts.namepath, () => {
         return shlex.split(cmdline);
     }
 
-    describe('constructor', () => {
+    describe('constructor()', () => {
         it('is a valid bullfrog class object', () => {
             expect(new FrogOpts([])).to.be.a.frog_class_object;
         });
@@ -25,7 +25,7 @@ describe(FrogOpts.namepath, () => {
     });
 
     describe('prototype.' + FrogOpts.prototype.parse.name + '()', () => {
-        it.skip('covered by process()');
+        it.skip('covered by prototype.' + FrogOpts.prototype.process.name +'()');
     });
 
     describe('prototype.' + FrogOpts.prototype.process.name + '()', () => {
