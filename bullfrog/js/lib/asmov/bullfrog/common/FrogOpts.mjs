@@ -16,15 +16,15 @@ export default class FrogOpts {
     static #configInput(inputClass, cfg) {
         const config = {};
 
-        if (!FrogOpts.inputClasses.hasOwnProperty(inputClass)) {
+        if (!this.inputClasses.hasOwnProperty(inputClass)) {
             throw new Error(`Invalid input type '${inputClass}'`);
         }
 
-        const isOption = inputClass === FrogOpts.inputClasses.option;
-        const isParameter = inputClass === FrogOpts.inputClasses.parameter;
+        const isOption = inputClass === this.inputClasses.option;
+        const isParameter = inputClass === this.inputClasses.parameter;
 
         this.#configInputSetting(cfg, 'name', 'namespace', null, config, true);
-        this.#configInputSetting(cfg, 'type', 'string', null, config, true, Object.keys(FrogOpts.inputClasses));
+        this.#configInputSetting(cfg, 'type', 'string', null, config, true, Object.keys(this.inputClasses));
         this.#configInputSetting(cfg, 'flag', 'char', null, config, true, null, isOption);
         this.#configInputSetting(cfg, 'required', 'boolean', false, config);
         this.#configInputSetting(cfg, 'default', 'any', null, config);

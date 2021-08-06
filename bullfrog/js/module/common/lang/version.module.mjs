@@ -1,8 +1,11 @@
 #!/usr/bin/env node
 'use strict';
 
+import fs from 'fs/promises';
 import BullfrogModule from '@asmov/bullfrog/common/Module';
 import BullfrogCommon from '@asmov/bullfrog/common/Common';
+
+const BASEPATH = await fs.realpath('.');
 
 class VersionModule extends BullfrogModule {
     static namepath = 'asmov/bullfrog/module/common/SysInfo';
@@ -11,7 +14,7 @@ class VersionModule extends BullfrogModule {
     static #versionRegex = /^\d+\.\d+\.\d+/
 
     constructor() {
-        super('.');
+        super(BASEPATH);
     }
 
     operation_js(parameters, options) {

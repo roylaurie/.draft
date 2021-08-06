@@ -1,7 +1,9 @@
 'use strict';
 
-import BullfrogConfig from "@asmov/bullfrog/common/Config";
-import BullfrogCmdline from "@asmov/bullfrog/common/Cmdline";
+import BullfrogConfig from '@asmov/bullfrog/common/Config';
+import BullfrogCmdline from '@asmov/bullfrog/common/Cmdline';
+import Common from '@asmov/bullfrog/common/Common';
+import PackageStructure from '@asmov/bullfrog/common/package/Structure';
 
 export default class BullfrogModule {
     static namepath = 'asmov/bullfrog/common/Module';
@@ -9,23 +11,28 @@ export default class BullfrogModule {
 
     static MODULES_CFG_SCHEMA_NAME = 'modules';
 
-    #cfg= new BullfrogConfig();
-    #jsonPath = null;
 
+    fs = { package: null, module: null, operation: null };
     cmdline = null;
 
+    #cfg = new BullfrogConfig();
+
     constructor(packagePath) {
-        this.#jsonPath = packagePath + '/json';
+        this.fs.package = PackageStructure.build(PackageStructure.package, packagePath, this.fs);
     }
 
     async init() {
-        const schemaFilepath = this.#jsonPath + '/schema/package/modules.schema.json';
-        const dataFilepath = this.#jsonPath + '/data/package/modules.json';
+        const schemaFilepath = this.fs.package.json.schema.package.config.filepath;
+        const dataFilepath = this.fs.package.json.data.package.config.filepath;
 
-        await this.#cfg.loadSchema(BullfrogModule.MODULES_CFG_SCHEMA_NAME, schemaFilepath)
+        await this.#cfg.loadSchema(BullfrogModule.MODULES_CFG_SCHEMA_NAME, schemaFilepath);
         const modulesCfg = await this.#cfg.loadData(BullfrogModule.MODULES_CFG_SCHEMA_NAME, dataFilepath);
 
         this.cmdline = new BullfrogCmdline(modulesCfg);
+
+        const lang = modulesCfg.package.namespaces[this.cmdline.module].operations[this.cmdline.operation].lang;
+        this.fs.module = PackageStructure.build(PackageStructure.module, this.fs.package.path, this.fs, this.cmdline.module, lang);
+        this.fs.operation = PackageStructure.build(PackageStructure.operation, this.fs.package.path, this.fs, this.cmdline.operation, lang);
     }
 
     async start() {
