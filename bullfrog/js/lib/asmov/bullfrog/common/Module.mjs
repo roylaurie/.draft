@@ -32,7 +32,6 @@ export default class BullfrogModule {
 
         const lang = modulesCfg.package.namespaces[this.cmdline.module].operations[this.cmdline.operation].lang;
         this.fs.module = PackageStructure.build(PackageStructure.module, this.fs.package.path, this.fs, this.cmdline.module, lang);
-        this.fs.operation = PackageStructure.build(PackageStructure.operation, this.fs.package.path, this.fs, this.cmdline.operation, lang);
     }
 
     async start() {

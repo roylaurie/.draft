@@ -8,7 +8,7 @@ import BullfrogCommon from '@asmov/bullfrog/common/Common';
 const BASEPATH = await fs.realpath('.');
 
 class VersionModule extends BullfrogModule {
-    static namepath = 'asmov/bullfrog/module/common/SysInfo';
+    static namepath = 'module/asmov/bullfrog/common/lang/Version';
     namepath = VersionModule.namepath;
 
     static #versionRegex = /^\d+\.\d+\.\d+/
@@ -18,8 +18,6 @@ class VersionModule extends BullfrogModule {
     }
 
     operation_js(parameters, options) {
-        console.log(this);
-
         const nodejsVersion = process.versions['node'].match(VersionModule.#versionRegex)[0];
         const v8Version = process.versions['v8'].match(VersionModule.#versionRegex)[0];
 

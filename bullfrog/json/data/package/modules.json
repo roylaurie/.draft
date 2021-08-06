@@ -26,44 +26,7 @@
                         "lang": "js",
                         "desc": "Displays the system NodeJS and V8 versions.",
                         "outputs": [ "json" ],
-                        "parameters": {
-                            "test.param": {
-                                "desc": "A param",
-                                "type": "boolean",
-                                "required": true
-                            },
-                            "t.p": {
-                                "desc": "A param",
-                                "type": "string",
-                                "required": false,
-                                "default": "tada"
-                            },
-                            "enums": {
-                                "desc": "A param",
-                                "type": "string",
-                                "required": true,
-                                "enum": [ "cat", "hat" ]
-                            },
-                            "pos.one": {
-                                "desc": "A param",
-                                "type": "number",
-                                "required": true,
-                                "position": 1
-                            },
-                            "pos.two": {
-                                "desc": "A param",
-                                "type": "number",
-                                "required": true,
-                                "position": 2,
-                                "enum": [ "one", "two", "three" ]
-                            },
-                            "boolz": {
-                                "desc": "A param",
-                                "type": "boolean",
-                                "required": true,
-                                "enum": [ "neg", "pos" ]
-                            }
-                        }
+                        "parameters": { }
                     },
                     "python": {
                         "lang": "python",

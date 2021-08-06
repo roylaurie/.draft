@@ -115,33 +115,36 @@ export default class BullfrogPackageStructure {
     };
 
     static module = {
-        makepath: (fs, module, lang) => `${fs.package[lang].module.path}/${module.split('.','/')}`,
-        lib: {
-            makepath: (fs, module, lang) => fs.module.path + '/lib',
-        }
+        makepath: (basepath, module, fs, namespace, lang) => basepath + `/${lang}/module/`
+            + namespace.split('.').slice(0, -1).join('/'),
+        makefilepath: (basepath, module, fs, namespace, lang) => module.path + '/'
+            + namespace.split('.').slice(-1).join() + '.module' + this.langext(lang),
     };
 
-    static operation = {
-        makefilepath: (fs, operation, lang) => {
-            let ext = null;
-            switch (lang) {
-                case 'bash':
-                    ext = '.module.bash'
-                    break;
-                case 'js':
-                    ext = '.module.mjs';
-                    break;
-            }
-
-            return fs.module.path + '/' + operation + ext;
+    static langext(lang) {
+        switch(lang) {
+            case 'js':
+                return '.mjs';
+            case 'bash':
+                return '.bash';
+            default:
+                throw new Error('Uknown language: ' + lang)
         }
-    };
-
-    static build(template, basepath, fs, ...args) {
-        return this.#structure({}, template, basepath, fs, ...args);
     }
 
-    static #structure(structure, template, basepath, fs, ...args) {
+    static build(template, basepath, fs, ...args) {
+        const structure = {};
+        return this.#structure(structure, structure, template, basepath, fs, ...args);
+    }
+
+    static #structure(tree, structure, template, basepath, fs, ...args) {
+        if (typeof template['makepath'] === 'function') {
+            structure.path = template.makepath(basepath, tree, fs, ...args);
+        }
+        if (typeof template['makefilepath'] === 'function') {
+            structure.filepath = template.makefilepath(basepath, tree, fs, ...args);
+        }
+
         for (const key in template) {
             const value = template[key];
             switch (key) {
@@ -152,16 +155,11 @@ export default class BullfrogPackageStructure {
 
                 case 'makepath':
                 case 'makefilepath':
-                    if (!(value instanceof Function)) {
-                        throw new Error('Expected function for path generator');
-                    }
-
-                    structure[(key === 'makepath' ? 'path' : 'filepath')] = basepath + '/' + value(fs, ...args);
                     break;
 
                 default:
                     structure[key] = {};
-                    this.#structure(structure[key], value, basepath, fs, ...args)
+                    this.#structure(tree, structure[key], value, basepath, fs, ...args)
             }
         }
 

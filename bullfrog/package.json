@@ -45,6 +45,7 @@
   "devDependencies": {
     "ajv-cli": "^5.0.0",
     "chai": "^4.3.4",
+    "inspect": "^0.0.2",
     "mocha": "^9.0.3",
     "shlex": "^2.1.0"
   }

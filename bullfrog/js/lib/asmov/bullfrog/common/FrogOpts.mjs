@@ -46,7 +46,7 @@ export default class FrogOpts {
 
     static #configInputSetting(inputCfg, property, typeofExpected, defaultValue, outputCfg,
                                required=false, restrictions=null, allowed=true) {
-        if (typeof inputCfg[property] === 'undefined') {
+        if (typeof inputCfg[property] === 'undefined' || inputCfg[property] === null) {
             if (required && allowed) {
                 throw new Error(`Missing required input config setting '${property}'`);
             }
@@ -65,6 +65,10 @@ export default class FrogOpts {
                 break;
             case 'array<string>':
                 error = !Array.isArray(value);
+                if (error) {
+                    break;
+                }
+
                 for (let i = 0, n = value.length; !error && i < n ; ++i) {
                     error = ( typeof value[i] !== 'string' );
                 }
