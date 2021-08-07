@@ -1,11 +1,13 @@
 #!/usr/bin/env node
 'use strict';
 
-import fs from 'fs/promises';
 import BullfrogModule from '@asmov/bullfrog/common/Module';
 import BullfrogCommon from '@asmov/bullfrog/common/Common';
+import fs from 'fs/promises';
+import path from 'path';
+import url from 'url';
 
-const BASEPATH = await fs.realpath('.');
+const BASEPATH = await fs.realpath(path.dirname(url.fileURLToPath(import.meta.url)) + '/../../../..');
 
 class VersionModule extends BullfrogModule {
     static namepath = 'module/asmov/bullfrog/common/lang/Version';
