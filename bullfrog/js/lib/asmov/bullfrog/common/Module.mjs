@@ -11,13 +11,13 @@ export default class BullfrogModule {
 
     static MODULES_CFG_SCHEMA_NAME = 'modules';
 
-
     fs = { package: null, module: null, operation: null };
     cmdline = null;
 
-    #cfg = new BullfrogConfig();
+    #config = null;
 
-    constructor(packagePath) {
+    constructor(config, packagePath) {
+        this.#config = config;
         this.fs.package = PackageStructure.build(PackageStructure.package, packagePath, this.fs);
     }
 

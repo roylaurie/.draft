@@ -22,7 +22,9 @@
     "bullfrog": "dist/bullfrog/bash/bin/bullfrog.bash"
   },
   "exports": {
-    "./*": "./js/lib/asmov/bullfrog/*.mjs"
+    "asmov/bullfrog/common/lib/*": "./js/lib/asmov/bullfrog/common/*.mjs",
+    "asmov/bullfrog/common/system/linux/*": "./js/system/linux/asmov/bullfrog/common/*.mjs",
+    "asmov/bullfrog/common/embedded/w3c/*": "./js/embedded/w3c/asmov/bullfrog/common/*.mjs"
   },
   "preferGlobal": true,
   "keywords": [
@@ -37,7 +39,7 @@
     "cloud",
     "stack"
   ],
-  "author": "Roy Laurie <roy.laurie@gmail.com>",
+  "author": "Roy Laurie <public@roylaurie.email>",
   "license": "GPL-3.0",
   "dependencies": {
     "ajv": "^8.6.1"

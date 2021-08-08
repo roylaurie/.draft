@@ -1,6 +1,6 @@
 'use strict';
 
-import BullfrogCommon from '@asmov/bullfrog/common/Common';
+import BullfrogCommon from '@asmov/bullfrog/common/lib/Common';
 
 export default (chai, utils) => {
     utils.addProperty(chai.Assertion.prototype, 'frog_namespace', function() {

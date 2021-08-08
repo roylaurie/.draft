@@ -1,6 +1,14 @@
 {
     "package": {
-        "name": "common",
+        "org": "asmov",
+        "name": "bullfrog",
+        "namespace": "asmov.bullfrog.common",
+        "platforms": {
+            "js": [ "lib", "system.linux", "embedded.w3c" ],
+            "python": [ "lib", "system.linux" ],
+            "rust": [ "lib", "system.linux" ],
+            "java": [ "lib", "system.linux", "embedded.w3c" ]
+        },
         "namespaces": {
             "common.sysinfo": {
                 "desc": "Provides system information tools",
