@@ -25,6 +25,7 @@ class VersionModule extends BullfrogModule {
     }
 }
 
-BullfrogCommon.deepfreeze(VersionModule);
-
-new VersionModule().start();
+(()=>{
+    BullfrogCommon.deepfreeze(VersionModule);
+    new VersionModule().start();
+})();
