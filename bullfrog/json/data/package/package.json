@@ -1,0 +1,38 @@
+{
+    "package": {
+        "org": {
+            "name": "Asmov",
+            "token": "asmov",
+            "legal": {
+                "name": "Asmov LLC"
+            }
+        },
+        "name": "bullfrog",
+        "namespace": "asmov.bullfrog.common",
+        "namepath": "asmov/bullfrog/common",
+        "version": "2021.1.1",
+        "copyright": 2021,
+        "languages": [ "bash", "js", "python", "rust" ],
+        "platforms": {
+            "js": [
+                "lib",
+                "system.linux",
+                "w3c"
+            ],
+            "python": [
+                "lib",
+                "system.linux"
+            ],
+            "rust": [
+                "lib",
+                "system.linux"
+            ],
+            "java": [
+                "lib",
+                "system.linux",
+                "w3c"
+            ]
+        },
+        "publichash": "0x667c4Cd50974390d54189574d0bdAC734D1b0DeA"
+    }
+}

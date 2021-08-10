@@ -15,6 +15,7 @@
   "files": [
     "dist/bullfrog/bash",
     "dist/bullfrog/config",
+    "dist/bullfrog/js",
     "dist/bullfrog/json",
     "dist/bullfrog/files"
   ],
@@ -22,9 +23,7 @@
     "bullfrog": "dist/bullfrog/bash/bin/bullfrog.bash"
   },
   "exports": {
-    "asmov/bullfrog/common/lib/*": "./js/lib/asmov/bullfrog/common/*.mjs",
-    "asmov/bullfrog/common/system/linux/*": "./js/system/linux/asmov/bullfrog/common/*.mjs",
-    "asmov/bullfrog/common/embedded/w3c/*": "./js/embedded/w3c/asmov/bullfrog/common/*.mjs"
+    "./*": "./js/asmov/bullfrog/common/*.mjs"
   },
   "preferGlobal": true,
   "keywords": [

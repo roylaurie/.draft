@@ -4,10 +4,10 @@
         "name": "bullfrog",
         "namespace": "asmov.bullfrog.common",
         "platforms": {
-            "js": [ "lib", "system.linux", "embedded.w3c" ],
+            "js": [ "lib", "system.linux", "w3c" ],
             "python": [ "lib", "system.linux" ],
             "rust": [ "lib", "system.linux" ],
-            "java": [ "lib", "system.linux", "embedded.w3c" ]
+            "java": [ "lib", "system.linux", "w3c" ]
         },
         "namespaces": {
             "common.sysinfo": {
