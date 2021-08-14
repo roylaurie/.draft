@@ -12,11 +12,21 @@
         "namepath": "asmov/bullfrog/common",
         "version": "2021.1.1",
         "copyright": 2021,
-        "languages": [ "bash", "js", "python", "rust" ],
+        "languages": [ "bash", "js", "rust", "python", "java" ],
         "platforms": {
             "js": [
+                "bin.system",
+                "bin.system.linux",
+                "bin.system.linux.ubuntu",
+                "bin.w3c",
                 "lib",
+                "modules.lib",
+                "modules.system",
+                "modules.system.linux",
+                "modules.system.linux.ubuntu",
+                "system",
                 "system.linux",
+                "system.linux.ubuntu",
                 "w3c"
             ],
             "python": [
