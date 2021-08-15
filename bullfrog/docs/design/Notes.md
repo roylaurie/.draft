@@ -48,7 +48,7 @@ Example:
 `@asmov => asmov`
 
 To access the rest of the `sources` path, another symlink must be made.
-An HTTP server will need to provides a `sources` directory outside of the URL
+An HTTP server will need to provide a `sources` directory outside of the URL
 path and then be configured to follow this symlink.
 
 Example:  
