@@ -1,5 +1,6 @@
 {
-  "distributables": {
+  "distributables":
+  {
     "cargo": {
       "asmov.bullfrog": {
         "rust": [
@@ -24,7 +25,7 @@
       }
     },
     "npm": {
-      "@asmov/bullfrog.common": {
+      "@asmov/bullfrog-common": {
         "js": [
           "bin.system",
           "bin.system.linux",
@@ -50,7 +51,7 @@
       }
     },
     "w3c": {
-      "asmov/bullfrog-common": {
+      "@asmov/bullfrog-common": {
         "js": [
           "lib",
           "modules.lib",
@@ -60,13 +61,16 @@
         "json": [
           "package",
           "w3c"
-        ]
-      },
-      "java/@asmov/bullfrog": {
+        ],
         "java": [
           "lib",
           "lib.modules",
-          "lib.w3c",
+          "w3c"
+        ],
+        "html": [
+          "w3c"
+        ],
+        "css": [
           "w3c"
         ]
       }
