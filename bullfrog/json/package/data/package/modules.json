@@ -1,81 +1,79 @@
 {
-    "package": {
-        "org": "asmov",
-        "name": "bullfrog",
-        "namespace": "asmov.bullfrog.common",
-        "platforms": {
-            "js": [ "lib", "system.linux", "w3c" ],
-            "python": [ "lib", "system.linux" ],
-            "rust": [ "lib", "system.linux" ],
-            "java": [ "lib", "system.linux", "w3c" ]
-        },
-        "namespaces": {
-            "common.sysinfo": {
-                "desc": "Provides system information tools",
-                "operations": {
-                    "default": {
-                        "lang": "bash",
-                        "desc": "Displays a general profile of the system",
-                        "outputs": [ "json" ],
-                        "parameters": { }
-                    }
-                }
-            },
-            "common.lang.version": {
-                "desc": "Displays version information for supported programming languages.",
-                "operations": {
-                    "default": {
-                        "lang": "bash",
-                        "desc": "Displays version information for all supported languages.",
-                        "outputs": [ "json" ],
-                        "parameters": { }
-                    },
-                    "js": {
-                        "lang": "js",
-                        "desc": "Displays the system NodeJS and V8 versions.",
-                        "outputs": [ "json" ],
-                        "parameters": { }
-                    },
-                    "python": {
-                        "lang": "python",
-                        "desc": "Displays the system Python version.",
-                        "outputs": [ "json" ],
-                        "parameters": { }
-                    },
-                    "rust": {
-                        "lang": "rust",
-                        "desc": "Displays the system RustC version.",
-                        "outputs": [ "json" ],
-                        "parameters": { }
-                    },
-                    "java": {
-                        "lang": "java",
-                        "desc": "Displays the system JRE and JDK versions.",
-                        "outputs": [ "json" ],
-                        "parameters": { }
-                    }
-                }
-            },
-            "common.remote": {
-                "desc": "Runs bullfrog commands remotely via SSH",
-                "operations": {
-                    "default": {
-                        "lang": "bash",
-                        "desc": "Displays the current remote host",
-                        "parameters": {
-                        }
-                    },
-                    "install": {
-                        "lang": "bash",
-                        "desc": "Installs bullfrog on the remote machine",
-                        "parameters": {
-                        }
-                    }
+    "modules": {
+        "common.sysinfo": {
+            "description": "Provides system information tools",
+            "operations": {
+                "default": {
+                    "language": "bash",
+                    "description": "Displays a general profile of the system",
+                    "outputs": [
+                        "json"
+                    ],
+                    "parameters": {}
                 }
             }
         },
-        "aliases": {
-            "help": "common help"
+        "common.language.version": {
+            "description": "Displays version information for supported programming languageuages.",
+            "operations": {
+                "default": {
+                    "language": "bash",
+                    "description": "Displays version information for all supported languageuages.",
+                    "outputs": [
+                        "json"
+                    ],
+                    "parameters": {}
+                },
+                "js": {
+                    "language": "js",
+                    "description": "Displays the system NodeJS and V8 versions.",
+                    "outputs": [
+                        "json"
+                    ],
+                    "parameters": {}
+                },
+                "python": {
+                    "language": "python",
+                    "description": "Displays the system Python version.",
+                    "outputs": [
+                        "json"
+                    ],
+                    "parameters": {}
+                },
+                "rust": {
+                    "language": "rust",
+                    "description": "Displays the system RustC version.",
+                    "outputs": [
+                        "json"
+                    ],
+                    "parameters": {}
+                },
+                "java": {
+                    "language": "java",
+                    "description": "Displays the system JRE and JDK versions.",
+                    "outputs": [
+                        "json"
+                    ],
+                    "parameters": {}
+                }
+            }
+        },
+        "common.remote": {
+            "description": "Runs bullfrog commands remotely via SSH",
+            "operations": {
+                "default": {
+                    "language": "bash",
+                    "description": "Displays the current remote host",
+                    "parameters": {
+                    }
+                },
+                "install": {
+                    "language": "bash",
+                    "description": "Installs bullfrog on the remote machine",
+                    "parameters": {
+                    }
+                }
+            }
         }
     }
 }
