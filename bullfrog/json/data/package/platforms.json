@@ -1,0 +1,33 @@
+{
+  "platforms": {
+    "languages": [ "bash", "js", "rust", "python", "java" ],
+    "js": [
+      "bin.system",
+      "bin.system.linux",
+      "bin.system.linux.ubuntu",
+      "bin.w3c",
+      "lib",
+      "modules.lib",
+      "modules.system",
+      "modules.system.linux",
+      "modules.system.linux.ubuntu",
+      "system",
+      "system.linux",
+      "system.linux.ubuntu",
+      "w3c"
+    ],
+    "python": [
+      "lib",
+      "system.linux"
+    ],
+    "rust": [
+      "lib",
+      "system.linux"
+    ],
+    "java": [
+      "lib",
+      "system.linux",
+      "w3c"
+    ]
+  }
+}

@@ -1,12 +1,12 @@
 'use strict';
 
-import BullfrogConfig from '@asmov/bullfrog/common/Config';
-import BullfrogCmdline from '@asmov/bullfrog/common/Cmdline';
-import Common from '@asmov/bullfrog/common/Common';
-import PackageStructure from '@asmov/bullfrog/common/package/Structure';
+import BullfrogConfig from '@asmov/bullfrog.common/lib/Config';
+import BullfrogCmdline from '@asmov/bullfrog.common/lib/Cmdline';
+import Common from '@asmov/bullfrog.common/lib/Common';
+import PackageStructure from '@asmov/bullfrog.common/lib/package/Structure';
 
 export default class BullfrogModule {
-    static namepath = 'asmov/bullfrog/common/Module';
+    static namepath = 'asmov/bullfrog.common/lib/Module';
     namepath = BullfrogModule.namepath;
 
     static MODULES_CFG_SCHEMA_NAME = 'modules';

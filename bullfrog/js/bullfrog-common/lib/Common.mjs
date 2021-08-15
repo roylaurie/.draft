@@ -1,7 +1,7 @@
 'use strict';
 
 export default class BullfrogCommon {
-    static namepath = 'asmov/bullfrog/Common';
+    static namepath = 'asmov/bullfrog.common/Common';
 
     static #namespacePattern = /^(?![\d.]+$)(?:[a-z0-9]+(?:\.[a-z0-9]+)*)+$/
     static #namepathPattern = /^(?![\d.\/]+$)(?:[a-z0-9]+(?:\/[a-z0-9]+)*)+\/(?![\d.\/]+$)(?:[a-zA-Z0-9_]+(?:([._]|::)[a-zA-Z0-9_]+)*)+$/

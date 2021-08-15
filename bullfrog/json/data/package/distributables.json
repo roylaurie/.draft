@@ -1,0 +1,68 @@
+{
+  "distributables": {
+    "cargo": {
+      "asmov.bullfrog": {
+        "rust": [
+
+        ]
+      }
+    },
+    "debian": {
+      "bullfrog": {
+        "js": [
+          "bin.system",
+          "bin.system.linux",
+          "bin.system.linux.ubuntu",
+          "lib",
+          "lib.modules",
+          "modules.system.linux",
+          "modules.system.linux.ubuntu",
+          "system",
+          "system.linux",
+          "system.linux.ubuntu"
+        ]
+      }
+    },
+    "npm": {
+      "@asmov/bullfrog.common": {
+        "js": [
+          "bin.system",
+          "bin.system.linux",
+          "bin.system.linux.ubuntu",
+          "lib",
+          "lib.modules",
+          "modules.system.linux",
+          "modules.system.linux.ubuntu",
+          "system",
+          "system.linux",
+          "system.linux.ubuntu"
+        ]
+      }
+    },
+    "pip": {
+      "asmov.bullfrog": {
+        "python": [
+
+        ]
+      }
+    },
+    "w3c": {
+      "js/@asmov/bullfrog": {
+        "js": [
+          "lib",
+          "modules.lib",
+          "modules.w3c",
+          "w3c"
+        ]
+      },
+      "java/@asmov/bullfrog": {
+        "java": [
+          "lib",
+          "lib.modules",
+          "lib.w3c",
+          "w3c"
+        ]
+      }
+    }
+  }
+}
