@@ -36,6 +36,9 @@
           "system",
           "system.linux",
           "system.linux.ubuntu"
+        ],
+        "json": [
+          "package"
         ]
       }
     },
@@ -47,11 +50,15 @@
       }
     },
     "w3c": {
-      "js/@asmov/bullfrog": {
+      "asmov/bullfrog-common": {
         "js": [
           "lib",
           "modules.lib",
           "modules.w3c",
+          "w3c"
+        ],
+        "json": [
+          "package",
           "w3c"
         ]
       },
