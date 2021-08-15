@@ -102,7 +102,7 @@ export default class BullfrogPackageStructure {
             path: '/tool'
         },
         readme: {
-            filepath: '/README.md'
+            filepath: '/Notes.md'
         },
         npm: {
             config: {
