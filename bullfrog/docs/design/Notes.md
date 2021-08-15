@@ -54,7 +54,7 @@ path and then be configured to follow this symlink.
 Example:  
 `/var/sites/asmov.dev/sources/js/asmov/bullfrog-common`  
 `/var/sites/asmov.dev/sources/js/asmov/bullfrog-w3c`  
-`/var/sites/asmov.dev/www/sources => /var/sites/asmov.dev/sources`
+`/var/sites/asmov.dev/www/sources => /var/sites/asmov.dev/sources`  
 `/var/sites/asmov.dev/www/@asmov => sources/js/asmov`  
 `/var/sites/asmov.dev/www/index.mjs => sources/js/asmov/bullfrog-w3c/w3c.bin/index.mjs`
 
