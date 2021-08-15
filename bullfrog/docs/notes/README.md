@@ -10,13 +10,13 @@ __Reference__
 The `name` property may also include a *scope* prefix, representing the
 publishing organization.
 
+### Scope
 The **scope** is preceded with an `@` symbol and appears to officially follow
 the same naming rules as the `name` property (citation needed).
 
-### Scope
 Scope is designated in the `package.json` as a prefix in the `name`
 property, with a slash `/` character separating the scope name from the
-package name. The scope name must be preceded with an `@` symbol.
+package name. 
 
 Example: `@my-org/my-package_name`
 
@@ -33,10 +33,30 @@ The `node_modules` file system represents scope as a top-level directory by
 its name, excluding the leading `@` symbol. Each scoped package is
 installed as a sub-directory, by package name excluding the scope name prefix.
 
+Example:  
+`node_modules/asmov/bullfrog-common`  
+`node_modules/asmov/bullfrog-local`
+
 When importing without a module loader (browser), the same file
 structure will have to exist in the working path. The `@` symbol
 must be **included** in the scope directory name (unlike `node_modules`)
 as the symbol will be taken literally as part of the path when imported.
+
+Example:  
+`asmov/bullfrog-common`  
+`asmov/bullfrog-local`  
+`@asmov => asmov`
+
+To access the rest of the `sources` path, another symlink must be made.
+An HTTP server will need to provides a `sources` directory outside of the URL
+path and then be configured to follow this symlink.
+
+Example:  
+`/var/sites/asmov.dev/sources/js/asmov/bullfrog-common`  
+`/var/sites/asmov.dev/sources/js/asmov/bullfrog-w3c`  
+`/var/sites/asmov.dev/www/sources => /var/sites/asmov.dev/sources`
+`/var/sites/asmov.dev/www/@asmov => sources/js/asmov`
+`/var/sites/asmov.dev/www/index.mjs => sources/js/asmov/bullfrog-w3c/w3c.bin/index.mjs`
 
 It appears that npm actually allows other delimiters in package and scope
 names, such as the `.` character. The most common naming format among published
