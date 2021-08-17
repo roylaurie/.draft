@@ -1,17 +1,17 @@
 {
     "package": {
+        "name": "bullfrog-common",
+        "namespace": "asmov.bullfrog.common",
+        "namepath": "asmov/bullfrog-common",
+        "version": "2021.1.1",
+        "copyright": 2021,
+        "license": "gpl3",
         "publisher": {
             "type": "org",
             "token": "asmov",
             "name": "Asmov",
             "fullname": "Asmov LLC",
             "publichash": "0x667c4Cd50974390d54189574d0bdAC734D1b0DeA"
-        },
-        "name": "bullfrog-common",
-        "namespace": "asmov.bullfrog.common",
-        "namepath": "asmov/bullfrog-common",
-        "version": "2021.1.1",
-        "copyright": 2021,
-        "license": "gpl3"
+        }
     }
 }
