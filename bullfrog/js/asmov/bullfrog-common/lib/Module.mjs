@@ -6,7 +6,7 @@ import Common from '@asmov/bullfrog.common/lib/Common';
 import PackageStructure from '@asmov/bullfrog.common/lib/package/Structure';
 
 export default class BullfrogModule {
-    static namepath = 'asmov/bullfrog.common/lib/Module';
+    static namepath = 'asmov/bullfrog/common/lib/Module';
     namepath = BullfrogModule.namepath;
 
     static MODULES_CFG_SCHEMA_NAME = 'modules';

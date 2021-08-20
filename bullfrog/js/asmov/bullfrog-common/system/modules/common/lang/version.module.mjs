@@ -7,7 +7,7 @@ import BullfrogConfig from '@asmov/bullfrog-common/lib/Config';
 import FileSystem from '@asmov/bullfrog-common/system/file/System';
 
 class VersionModule extends BullfrogModule {
-    static namepath = 'asmov/bullfrog-common/modules.system/lang/Version';
+    static namepath = 'asmov/bullfrog/common/modules/system/lang/Version';
     namepath = VersionModule.namepath;
 
     static #versionRegex = /^\d+\.\d+\.\d+/

@@ -6,7 +6,7 @@ import Common from '@asmov/bullfrog-common/lib/Common';
 
 
 export default class FileSystem {
-    static namepath = 'asmov/bullfrog-common/system/file/System';
+    static namepath = 'asmov/bullfrog/common/system/file/System';
     namepath = FileSystem.namepath;
 
     basepath = null;
