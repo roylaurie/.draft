@@ -1,10 +1,10 @@
-.swp
-.swo
+*.swp
+*.swo
 .idea
 node_modules
 package-lock.json
-dist
-files/debian-package/*.deb
-.nyc_output
-
+Cargo.lock
+/build
+/dist
+/files/debian-package/*.deb
 
