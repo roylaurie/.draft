@@ -1,0 +1,20 @@
+{
+        "locale": "en",
+        "namepath": "asmov/meta/cMetaPack",
+        "data": {
+            "id": {
+                "type": "uint256",
+                "validators": [ "id256" ],
+                "name": "ID",
+                "description": "A unique identifier"
+            },
+            "namespace": {
+                "type": "utf8",
+                "validators": [ "namespace" ],
+                "description": "The namespace for this package"
+            },
+            "children": {
+                "type": "[ "interface<asmov/meta/cMetaPack>" ]"
+            }
+        }
+}

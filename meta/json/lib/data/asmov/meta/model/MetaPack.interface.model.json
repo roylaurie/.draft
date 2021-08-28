@@ -1,0 +1,36 @@
+{
+        "locale": "en",
+        "namepath": "asmov/meta/iMetaPack",
+        "interface": {
+            "get_id": {
+                "returns": "uint256",
+                 "camelcase": "getID"
+            },
+            "get_children": {
+                 "returns": "[ interface<asmov/meta/iMetaPack> ]"
+            }
+        },
+        "mutable_namepath": "asmov/meta/iMutableMetaPack",
+        "mutable": {
+            "set_id": {
+                "parameters": {
+                    "id": { 
+                        "type": "uint256",
+                        "validators": [ "nonzero" ]
+                    }
+                    
+                },
+                "camelcase": "setID"
+            },
+            "add_child": {
+                "parameters": {
+                    "child": {
+                        "type": "interface<asmov/meta/iMetaPack>"
+                    }
+                }
+            },
+            "alter_child": {
+                "returns": "mutable interface<asmov/meta/iMetaPack>"
+            }
+    }
+}
