@@ -3,3 +3,8 @@
 node_modules
 .idea
 package-lock.json
+
+
+# Added by cargo
+
+/target
