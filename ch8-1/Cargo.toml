@@ -1,0 +1,9 @@
+[package]
+name = "gtk-rs-book-ch8-1"
+version = "0.0.1"
+edition = "2021"
+
+[dependencies]
+gtk = { version="0.6.6", package = "gtk4", features = ["gnome_44"] }
+
+

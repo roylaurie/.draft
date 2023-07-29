@@ -240,7 +240,7 @@ dependencies = [
  "futures-task",
  "futures-util",
  "gio-sys",
- "glib-macros",
+ "glib-macros 0.17.10",
  "glib-sys",
  "gobject-sys",
  "libc",
@@ -263,6 +263,20 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 1.0.109",
+]
+
+[[package]]
+name = "glib-macros"
+version = "0.18.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "179643c50bf28d20d2f6eacd2531a88f2f5d9747dd0b86b8af1e8bb5dd0de3c0"
+dependencies = [
+ "heck",
+ "proc-macro-crate",
+ "proc-macro-error",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.27",
 ]
 
 [[package]]
@@ -339,6 +353,88 @@ dependencies = [
  "libc",
  "pango-sys",
  "system-deps",
+]
+
+[[package]]
+name = "gtk-rs-book-ch3"
+version = "0.0.1"
+dependencies = [
+ "gtk4",
+]
+
+[[package]]
+name = "gtk-rs-book-ch5-1"
+version = "0.0.1"
+dependencies = [
+ "gtk4",
+]
+
+[[package]]
+name = "gtk-rs-book-ch5-2"
+version = "0.0.1"
+dependencies = [
+ "gtk4",
+]
+
+[[package]]
+name = "gtk-rs-book-ch5-3"
+version = "0.0.1"
+dependencies = [
+ "glib-macros 0.18.0",
+ "gtk4",
+]
+
+[[package]]
+name = "gtk-rs-book-ch5-4"
+version = "0.0.1"
+dependencies = [
+ "gtk4",
+]
+
+[[package]]
+name = "gtk-rs-book-ch5-4-3"
+version = "0.0.1"
+dependencies = [
+ "glib-macros 0.18.0",
+ "gtk4",
+]
+
+[[package]]
+name = "gtk-rs-book-ch5-5-2"
+version = "0.0.1"
+dependencies = [
+ "glib-macros 0.18.0",
+ "gtk4",
+ "once_cell",
+]
+
+[[package]]
+name = "gtk-rs-book-ch6"
+version = "0.0.1"
+dependencies = [
+ "gtk4",
+]
+
+[[package]]
+name = "gtk-rs-book-ch7-1"
+version = "0.0.1"
+dependencies = [
+ "gtk4",
+]
+
+[[package]]
+name = "gtk-rs-book-ch8-1"
+version = "0.0.1"
+dependencies = [
+ "gtk4",
+]
+
+[[package]]
+name = "gtk-rs-book-ch9-1"
+version = "0.0.1"
+dependencies = [
+ "glib-macros 0.18.0",
+ "gtk4",
 ]
 
 [[package]]
@@ -441,13 +537,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "my-gtk-app"
-version = "0.1.0"
-dependencies = [
- "gtk4",
-]
-
-[[package]]
 name = "once_cell"
 version = "1.18.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -542,9 +631,9 @@ dependencies = [
 
 [[package]]
 name = "quote"
-version = "1.0.31"
+version = "1.0.32"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5fe8a65d69dd0808184ebb5f836ab526bb259db23c657efa38711b1072ee47f0"
+checksum = "50f3b39ccfb720540debaa0164757101c08ecb8d326b15358ce76a62c7e85965"
 dependencies = [
  "proc-macro2",
 ]
@@ -566,9 +655,9 @@ checksum = "b0293b4b29daaf487284529cc2f5675b8e57c61f70167ba415a463651fd6a918"
 
 [[package]]
 name = "serde"
-version = "1.0.173"
+version = "1.0.176"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e91f70896d6720bc714a4a57d22fc91f1db634680e65c8efe13323f1fa38d53f"
+checksum = "76dc28c9523c5d70816e393136b86d48909cfb27cecaa902d338c19ed47164dc"
 
 [[package]]
 name = "serde_spanned"
@@ -637,18 +726,18 @@ checksum = "1d2faeef5759ab89935255b1a4cd98e0baf99d1085e37d36599c625dac49ae8e"
 
 [[package]]
 name = "thiserror"
-version = "1.0.43"
+version = "1.0.44"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a35fc5b8971143ca348fa6df4f024d4d55264f3468c71ad1c2f365b0a4d58c42"
+checksum = "611040a08a0439f8248d1990b111c95baa9c704c805fa1f62104b39655fd7f90"
 dependencies = [
  "thiserror-impl",
 ]
 
 [[package]]
 name = "thiserror-impl"
-version = "1.0.43"
+version = "1.0.44"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "463fe12d7993d3b327787537ce8dd4dfa058de32fc2b195ef3cde03dc4771e8f"
+checksum = "090198534930841fab3a5d1bb637cde49e339654e606195f8d9c76eeb081dc96"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -731,9 +820,9 @@ checksum = "712e227841d057c1ee1cd2fb22fa7e5a5461ae8e48fa2ca79ec42cfc1931183f"
 
 [[package]]
 name = "winnow"
-version = "0.5.0"
+version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "81fac9742fd1ad1bd9643b991319f72dd031016d44b77039a26977eb667141e7"
+checksum = "25b5872fa2e10bd067ae946f927e726d7d603eaeb6e02fa6a350e0722d2b8c11"
 dependencies = [
  "memchr",
 ]

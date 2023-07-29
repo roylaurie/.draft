@@ -4,6 +4,7 @@ use std::rc::Rc;
 
 use gtk::prelude::*;
 use gtk::{self, glib, Application, ApplicationWindow, Label, Button, Orientation};
+use glib::clone;
 
 const APP_ID: &str = "org.gtk_rs.GObjectMemoryManagement0";
 
@@ -48,18 +49,17 @@ fn build_ui(application: &Application) {
         .build()));
 
     // Connect callbacks, when a button is clicked `number` will be changed
-    let number_copy = number.clone();
-    let label_number_copy_increase = label_number.clone();
-    button_increase.connect_clicked(move |_| {
-        number_copy.set(number_copy.get() + 1);
-        label_number_copy_increase.borrow_mut().set_label(&number_copy.get().to_string())
-    });
+    button_increase.connect_clicked(clone!(@weak number, @weak label_number =>
+        move |_| {
+            number.set(number.get() + 1);
+            label_number.borrow_mut().set_label(&number.get().to_string());
+    }));
 
-    let label_number_copy_decrease = label_number.clone();
-    button_decrease.connect_clicked(move |_| {
-        number.set(number.get() - 1);
-        label_number_copy_decrease.borrow_mut().set_label(&number.get().to_string())
-    });
+    button_decrease.connect_clicked(clone!(@strong number, @strong label_number =>
+        move |_| {
+            number.set(number.get() - 1);
+            label_number.borrow_mut().set_label(&number.get().to_string());
+    }));
 
     // Add buttons to `gtk_box`
     let gtk_box = gtk::Box::builder()

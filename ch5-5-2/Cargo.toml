@@ -1,0 +1,9 @@
+[package]
+name = "gtk-rs-book-ch5-5-2"
+version = "0.0.1"
+edition = "2021"
+
+[dependencies]
+gtk = { version = "0.6.6", package = "gtk4", features = ["gnome_44"] }
+glib-macros = "0.18.0"
+once_cell = "1.18.0"

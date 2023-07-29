@@ -1,40 +1,21 @@
 {
     // Use IntelliSense to learn about possible attributes.
     // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830388
     "version": "0.2.0",
     "configurations": [
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug executable 'my-gtk-app'",
+            "name": "Debug executable 'gtk-rs-book-ch9-1'",
             "cargo": {
                 "args": [
                     "build",
-                    "--bin=my-gtk-app",
-                    "--package=my-gtk-app"
+                    "--bin=gtk-rs-book-ch9-1",
+                    "--package=gtk-rs-book-ch9-1"
                 ],
                 "filter": {
-                    "name": "my-gtk-app",
-                    "kind": "bin"
-                }
-            },
-            "args": [],
-            "cwd": "${workspaceFolder}"
-        },
-        {
-            "type": "lldb",
-            "request": "launch",
-            "name": "Debug unit tests in executable 'my-gtk-app'",
-            "cargo": {
-                "args": [
-                    "test",
-                    "--no-run",
-                    "--bin=my-gtk-app",
-                    "--package=my-gtk-app"
-                ],
-                "filter": {
-                    "name": "my-gtk-app",
+                    "name": "gtk-rs-book-ch9-1",
                     "kind": "bin"
                 }
             },
