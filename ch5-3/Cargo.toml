@@ -5,4 +5,4 @@ edition = "2021"
 
 [dependencies]
 glib-macros = "0.18.0"
-gtk = { version = "0.6.6", package = "gtk4", features = ["v4_10"] }
+gtk = { version = "0.7.1", package = "gtk4", features = ["v4_10"] }

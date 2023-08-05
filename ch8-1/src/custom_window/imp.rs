@@ -28,12 +28,12 @@ impl ObjectImpl for CustomWindow {
 impl WidgetImpl for CustomWindow {}
 
 impl WindowImpl for CustomWindow {
-    fn close_request(&self) -> glib::signal::Inhibit {
+    fn close_request(&self) -> glib::signal::Propagation {
         self.obj()
             .save_window_size()
             .expect("Failed to save settings");
 
-        glib::signal::Inhibit(false)
+        glib::signal::Propagation::Proceed
     }
 }
 

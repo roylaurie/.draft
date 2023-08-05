@@ -1,7 +1,7 @@
 mod custom_window;
 
 use gtk::prelude::*;
-use gtk::{self, glib, gio, Application, ApplicationWindow, Switch};
+use gtk::{self, glib, gio, Application, Switch};
 use gio::Settings;
 use custom_window::CustomWindow;
 

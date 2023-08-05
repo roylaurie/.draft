@@ -4,6 +4,6 @@ version = "0.0.1"
 edition = "2021"
 
 [dependencies]
-gtk = { version="0.6.6", package = "gtk4", features = ["gnome_44"] }
+gtk = { version="0.7.1", package = "gtk4", features = ["gnome_44"] }
 
 

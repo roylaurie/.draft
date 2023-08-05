@@ -1,7 +1,11 @@
 [package]
-name = "gtk-rs-book-ch6"
+name = "gtk-rs-book-ch9-2"
 version = "0.0.1"
 edition = "2021"
 
 [dependencies]
 gtk = { version="0.7.1", package = "gtk4", features = ["v4_10"] }
+
+
+
+
