@@ -6,10 +6,9 @@ mod imp {
     use gtk::{self, glib};
     use gtk::prelude::*;
     use gtk::subclass::prelude::*;
-    use glib_macros;
 
     #[derive(glib::Properties, Default)]
-    #[properties(wrapper_type= super::IntegerObject)]
+    #[properties(wrapper_type = super::IntegerObject)]
     pub struct IntegerObject {
         #[property(get, set)]
         number: Cell<i32>
@@ -21,7 +20,7 @@ mod imp {
         type Type = super::IntegerObject;
     }
 
-    #[glib_macros::derived_properties]
+    #[glib::derived_properties]
     impl ObjectImpl for IntegerObject {}
 }
 
@@ -32,5 +31,9 @@ glib::wrapper! {
 impl IntegerObject {
     pub fn new(number: i32) -> Self {
         glib::Object::builder().property("number", number).build()
+    }
+    
+    pub fn increase_number(self) {
+        self.set_number(self.number() + 2);
     }
 }
