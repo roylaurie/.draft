@@ -351,6 +351,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "gtk-rs-book-ch11-1"
+version = "0.0.1"
+dependencies = [
+ "glib-build-tools",
+ "gtk4",
+]
+
+[[package]]
 name = "gtk-rs-book-ch3"
 version = "0.0.1"
 dependencies = [

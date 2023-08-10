@@ -1,0 +1,18 @@
+[package]
+name = "gtk-rs-book-ch11-1"
+version = "0.0.1"
+edition = "2021"
+
+[dependencies]
+gtk = { version="0.7.1", package = "gtk4", features = ["v4_10"] }
+
+[build-dependencies]
+glib-build-tools = "0.18.0"
+
+
+
+
+
+
+
+

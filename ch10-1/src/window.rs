@@ -1,15 +1,17 @@
 use gtk::{self, glib, gio};
 
 mod imp {
+    use std::cell::Cell;
     use gtk::{self, glib};
     use gtk::prelude::*;
     use gtk::subclass::prelude::*;
+    use crate::button;
+
 
     #[derive(gtk::CompositeTemplate, Default)]
     #[template(resource = "/org/gtk_rs/ch10_1/window.ui")]
     pub struct Window {
-        #[template_child]
-        pub button: gtk::TemplateChild<gtk::Button>
+        pub number: Cell<i32>,
     }
 
     #[glib::object_subclass]
@@ -19,7 +21,9 @@ mod imp {
         type ParentType = gtk::ApplicationWindow;
 
         fn class_init(klass: &mut Self::Class) {
+            button::CustomButton::ensure_type();
             klass.bind_template();
+            klass.bind_template_callbacks();
         }
 
         fn instance_init(obj: &glib::subclass::InitializingObject<Self>) {
@@ -27,19 +31,20 @@ mod imp {
         }
     }
 
-    impl ObjectImpl for Window {
-        fn constructed(&self) {
-            self.parent_constructed();
-
-            self.button.connect_clicked(move |button| {
-                button.set_label("Hello world!");
-            });
-        }
-    }
-
+    impl ObjectImpl for Window {}
     impl WidgetImpl for Window {}
     impl WindowImpl for Window {}
     impl ApplicationWindowImpl for Window {}
+
+    #[gtk::template_callbacks]
+    impl Window {
+        #[template_callback]
+        fn on_button_clicked(&self, button: &button::CustomButton) {
+            let num = self.number.get();
+            self.number.set(num + 1);
+            button.set_label(&num.to_string())
+        }
+    }
 }
 
 glib::wrapper! {
