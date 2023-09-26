@@ -7,15 +7,15 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug executable 'gtk-rs-book-ch11-1'",
+            "name": "Debug executable 'gtk-rs-book-ch12-1'",
             "cargo": {
                 "args": [
                     "build",
-                    "--bin=gtk-rs-book-ch11-1",
-                    "--package=gtk-rs-book-ch11-1"
+                    "--bin=gtk-rs-book-ch12-1",
+                    "--package=gtk-rs-book-ch12-1"
                 ],
                 "filter": {
-                    "name": "gtk-rs-book-ch11-1",
+                    "name": "gtk-rs-book-ch12-1",
                     "kind": "bin"
                 }
             },

@@ -359,6 +359,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "gtk-rs-book-ch12-1"
+version = "0.0.1"
+dependencies = [
+ "gtk4",
+]
+
+[[package]]
 name = "gtk-rs-book-ch3"
 version = "0.0.1"
 dependencies = [
