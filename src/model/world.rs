@@ -94,7 +94,15 @@ impl World {
             .collect()
     }
 
-    pub fn spawn_thing(&mut self, thing: impl ThingBuilder, area_id: u64) -> Result<u64,()> {
+    pub fn find_thing(&self, key: &str) -> Option<&Thing> {
+        self.things.iter().find(|thing| thing.key().is_some_and(|k| k == key))
+    }
+
+    pub fn find_thing_mut(&mut self, key: &str) -> Option<&mut Thing> {
+        self.things.iter_mut().find(|thing| thing.key().is_some_and(|k| k == key))
+    }
+
+    pub fn spawn_thing(&mut self, thing: impl ThingBuilder, area_id: ID) -> Result<ID,()> {
         let mut area = self.area(area_id).expect("Area not found");
         let thing_id = self.generate_id();
         let thing = thing.id(thing_id).build_thing();

@@ -1,4 +1,17 @@
+use std::collections::HashMap;
+
 pub type ID = u64;
+pub type RegionID = u16;
+pub type WorldID = u16;
+pub type UniverseID = u32;
+
+#[derive(Debug, PartialEq, Eq)]
+pub struct Identity {
+    id: ID,
+    region_id: RegionID,
+    world_id: WorldID,
+    universe_id: UniverseID,
+}
 
 pub trait Builder: Sized {
     type Type;
@@ -6,37 +19,72 @@ pub trait Builder: Sized {
     fn new() -> Self;
     fn build(self) -> Self::Type; 
 
+    fn edit(self, original: &mut Self::Type) -> &mut Self::Type {
+        todo!()
+    }
+
+    fn set(&mut self, field: &str, value: String) -> Result<(), ()> {
+        todo!()
+    }
+
     fn validate(self) -> Self {
         self
     }
 }
 
+/// All descriptive information about and object that can be observed by a player.
+/// See also its corresponding trait: `Descriptive`
 #[derive(Debug)]
 pub struct Descriptor {
-    key: Option<String>,
+    /// The title
     name: String,
-    description: String
+    /// Any term that might be used to reference this
+    keywords: Vec<String>,
+    /// Unique to the World. Should be used to permanently reference objects (never use ID).
+    key: Option<String>,
+    /// A one-liner summary. If `description` is not available, this should be used instead.
+    short_description: Option<String>,
+    /// A detailed and narrative description.
+    description: Option<String>,
 }
 
+/// The trait that provides standard immutable access to a `Descriptor` struct
 pub trait Descriptive {
+    /// Fetch the `Descriptor` struct for this object
     fn descriptor(&self) -> &Descriptor;
 
-    fn key(&self) -> Option<&String> {
-        self.descriptor().key.as_ref()
-    }
-
+    /// The title
     fn name(&self) -> &str {
         &self.descriptor().name
     }
 
-    fn description(&self) -> &str {
-        &self.descriptor().description
+    /// Any term that might be used to reference this
+    fn keywords(&self) -> &Vec<String> {
+        &self.descriptor().keywords
+    }
+
+    /// Unique to the World. Should be used to permanently reference objects (never use ID).
+    fn key(&self) -> Option<&String> {
+        self.descriptor().key.as_ref()
+    }
+
+    /// A one-liner summary. If `description` is not available, this will be used instead.
+    fn short_description(&self) -> Option<&String> {
+        self.descriptor().short_description.as_ref()
+    }
+
+    /// A detailed and narrative description. If this doesn't exist, `short_description` will be used instead. 
+    fn description(&self) -> Option<&String> {
+        self.descriptor().description.as_ref()
+            .or_else(|| self.short_description())
     }
 }
 
 pub struct DescriptorBuilder {
-    key: Option<String>,
     name: Option<String>,
+    keywords: Option<Vec<String>>,
+    key: Option<String>,
+    short_description: Option<String>,
     description: Option<String>
 }
 
@@ -45,18 +93,43 @@ impl Builder for DescriptorBuilder {
 
     fn new() -> Self {
         Self {
-            key: None,
             name: None,
+            keywords: None,
+            key: None,
+            short_description: None,
             description: None
         }
     }
 
     fn build(self) -> Descriptor {
         Descriptor {
-            key: self.key,
             name: self.name.expect("Name not set"),
-            description: self.description.expect("Description not set")
+            keywords: self.keywords.unwrap_or_else(|| Vec::new()),
+            key: self.key,
+            short_description: self.short_description,
+            description: self.description
         }
+    }
+
+    fn edit(self, original: &mut Descriptor) -> &mut Descriptor {
+        if let Some(name) = self.name {
+            original.name = name;
+        }
+        if self.description.is_some() {
+            original.description = self.description;
+        }
+
+        original
+    }
+
+    fn set(&mut self, field: &str, value: String) -> Result<(),()> {
+        match field {
+           "name" => self.name = Some(value),
+           "description" => self.description = Some(value),
+            _ => return Err(())
+        }
+
+        Ok(())
     }
 }
 
@@ -79,6 +152,10 @@ impl DescriptorBuilder {
 
 impl Descriptor {
     pub fn builder() -> DescriptorBuilder {
+        DescriptorBuilder::new()
+    }
+
+    pub fn editor() -> DescriptorBuilder {
         DescriptorBuilder::new()
     }
 }
@@ -207,6 +284,20 @@ impl Thingy for Thing {
     }
 }
 
+impl Thing {
+    pub fn descriptor_mut(&mut self) -> &mut Descriptor {
+        match self {
+            Thing::Generic(_t) => todo!(),
+            Thing::Character(t) => t.descriptor_mut(),
+            Thing::Item(_t) => todo!(),
+        }
+    }
+
+    pub fn edit_description(&mut self, description: String) {
+        self.descriptor_mut().description = Some(description);
+    }
+}
+
 #[derive(Debug)]
 pub struct Character {
     entity: Entity
@@ -263,6 +354,10 @@ impl ThingBuilder for CharacterBuilder {
 impl Character {
     pub fn builder() -> CharacterBuilder {
         CharacterBuilder::new()
+    }
+
+    pub fn descriptor_mut(&mut self) -> &mut Descriptor {
+        &mut self.entity.descriptor
     }
 }
 
