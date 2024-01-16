@@ -1,0 +1,104 @@
+use crate::model::entity::*;
+use crate::model::area::*;
+use crate::model::access::*;
+use crate::s;
+
+#[derive(Debug)]
+pub struct World {
+    next_id: u64,
+    descriptor: Descriptor,
+    areas: Vec<Area>,
+    things: Vec<Thing>,
+    players: Vec<Thing>, // todo: Player
+    access_groups: Vec<AccessGroup>
+}
+
+pub struct WorldBuilder {
+    areas: Vec<AreaBuilder>,
+    next_id: u64,
+}
+
+impl WorldBuilder {
+    pub fn new() -> Self {
+        Self {
+            areas: Vec::new(),
+            next_id: 1
+        }
+    }
+
+    fn generate_id(&mut self) -> u64 {
+        let id = self.next_id;
+        self.next_id += 1;
+        id
+    }
+
+    pub fn area(mut self, area: AreaBuilder) -> Self {
+        let area = area.id(self.generate_id());
+        self.areas.push(area);
+        self
+    }
+
+    pub fn build(self) -> World {
+        World {
+            next_id: self.next_id + 1,
+            players: Vec::new(),
+            access_groups: Vec::new(),
+            descriptor: Descriptor::builder()
+                .name(s!("The World"))
+                .description(s!("It's a brave new world"))
+                .build(),
+            areas: self.areas.into_iter()
+                .map(|area| area.build())
+                .collect(),
+            things: Vec::new(),
+        }
+    }
+}
+
+impl World {
+    pub fn builder() -> WorldBuilder {
+        WorldBuilder::new()
+    }
+
+    fn generate_id(&mut self) -> u64 {
+        let id = self.next_id;
+        self.next_id += 1;
+        id
+    }
+
+    pub fn thing(&self, id: u64) -> Option<&Thing> {
+        self.things.iter().find(|thing| thing.id() == id)
+    }
+
+    pub fn thing_mut(&mut self, id: u64) -> Option<&mut Thing> {
+        self.things.iter_mut().find(|thing| thing.id() == id)
+    }
+
+    pub fn area(&self, id: u64) -> Option<&Area> {
+        self.areas.iter().find(|area| area.id() == id)
+    }
+
+    pub fn find_areas(&self, query: &str) -> Vec<&Area> {
+        self.areas.iter()
+            .filter(|area| area.name() == query)
+            .collect()
+    }
+
+    pub fn find_area(&self, key: &str) -> Option<&Area> {
+        self.areas.iter().find(|area| area.key().is_some_and(|k| k == key))
+    }
+
+    pub fn find_things(&self, query: &str) -> Vec<&Thing> {
+        self.things.iter()
+            .filter(|thing| thing.name() == query)
+            .collect()
+    }
+
+    pub fn spawn_thing(&mut self, thing: impl ThingBuilder, area_id: u64) -> Result<u64,()> {
+        let mut area = self.area(area_id).expect("Area not found");
+        let thing_id = self.generate_id();
+        let thing = thing.id(thing_id).build_thing();
+        self.things.push(thing);
+        Ok(thing_id)
+    }
+}
