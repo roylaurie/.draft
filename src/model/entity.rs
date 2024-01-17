@@ -19,11 +19,11 @@ pub trait Builder: Sized {
     fn new() -> Self;
     fn build(self) -> Self::Type; 
 
-    fn edit(self, original: &mut Self::Type) -> &mut Self::Type {
+    fn edit(self, original: &mut Self::Type) {
         todo!()
     }
 
-    fn set(&mut self, field: &str, value: String) -> Result<(), ()> {
+    fn set(&mut self, field: &str, raw_value: String) -> Result<(), ()> {
         todo!()
     }
 
@@ -88,6 +88,55 @@ pub struct DescriptorBuilder {
     description: Option<String>
 }
 
+pub enum FieldValueType {
+    String,
+    Integer,
+    Float,
+    Boolean,
+    StringArray
+}
+
+pub struct Field {
+    pub name: &'static str,
+    pub value_type: FieldValueType
+}
+
+#[allow(non_camel_case_types)]
+pub enum DescriptorField {
+    name,
+    keywords,
+    key,
+    short_description,
+    description
+}
+
+impl DescriptorField {
+    pub const fn field(&self) -> Field {
+        match self {
+            Self::name => Field {
+                name: DescriptorBuilder::FIELD_NAME,
+                value_type: FieldValueType::String,
+            },
+            Self::keywords => Field {
+                name: "keywords",
+                value_type: FieldValueType::StringArray
+            },
+            Self::key => Field {
+                name: "key",
+                value_type: FieldValueType::String
+            },
+            Self::short_description => Field {
+                name: "short_description",
+                value_type: FieldValueType::String
+            },
+            Self::description => Field {
+                name: DescriptorBuilder::FIELD_DESCRIPTION,
+                value_type: FieldValueType::String
+            }
+        }
+    }
+}
+
 impl Builder for DescriptorBuilder {
     type Type = Descriptor;
 
@@ -111,21 +160,19 @@ impl Builder for DescriptorBuilder {
         }
     }
 
-    fn edit(self, original: &mut Descriptor) -> &mut Descriptor {
+    fn edit(self, original: &mut Descriptor) {
         if let Some(name) = self.name {
             original.name = name;
         }
         if self.description.is_some() {
             original.description = self.description;
         }
-
-        original
     }
 
-    fn set(&mut self, field: &str, value: String) -> Result<(),()> {
+    fn set(&mut self, field: &str, raw_value: String) -> Result<(), ()> {
         match field {
-           "name" => self.name = Some(value),
-           "description" => self.description = Some(value),
+            DescriptorBuilder::FIELD_NAME => { self.name(raw_value); },
+            DescriptorBuilder::FIELD_DESCRIPTION => { self.description(raw_value); },
             _ => return Err(())
         }
 
@@ -134,17 +181,20 @@ impl Builder for DescriptorBuilder {
 }
 
 impl DescriptorBuilder {
-    pub fn key(mut self, key: String) -> Self {
+    pub const FIELD_NAME: &'static str = "name";
+    pub const FIELD_DESCRIPTION: &'static str = "description";
+
+    pub fn key(&mut self, key: String) -> &mut Self {
         self.key = Some(key);
         self
     }
 
-    pub fn name(mut self, name: String) -> Self {
+    pub fn name(&mut self, name: String) -> &mut Self {
         self.name = Some(name);
         self
     }
 
-    pub fn description(mut self, description: String) -> Self {
+    pub fn description(&mut self, description: String) -> &mut Self {
         self.description = Some(description);
         self
     }

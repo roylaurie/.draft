@@ -39,14 +39,16 @@ impl WorldBuilder {
     }
 
     pub fn build(self) -> World {
+        let mut descriptor = Descriptor::builder();
+        descriptor
+            .name(s!("The World"))
+            .description(s!("It's a brave new world"));
+
         World {
             next_id: self.next_id + 1,
             players: Vec::new(),
             access_groups: Vec::new(),
-            descriptor: Descriptor::builder()
-                .name(s!("The World"))
-                .description(s!("It's a brave new world"))
-                .build(),
+            descriptor: descriptor.build(),
             areas: self.areas.into_iter()
                 .map(|area| area.build())
                 .collect(),

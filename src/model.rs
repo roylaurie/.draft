@@ -14,11 +14,16 @@ mod tests {
 
     #[test]
     fn test_manual_building() {
-        let litterbox = model::Area::builder()
-            .descriptor(model::Descriptor::builder()
-                .key(s!("litter_box"))
-                .name(s!("Litter Box"))
-                .description(s!("A smelly litterbox")));
+        let mut litterbox = model::Area::builder();
+        litterbox
+            .descriptor({
+                let mut descriptor = model::Descriptor::builder();
+                descriptor
+                    .key(s!("litter_box"))
+                    .name(s!("Litter Box"))
+                    .description(s!("A smelly litterbox"));
+                descriptor
+            });
     
         let mut world = model::World::builder()
             .area(litterbox)
@@ -27,13 +32,18 @@ mod tests {
         dbg!(&world);
 
         let cat = model::Character::builder()
-            .entity(
-                model::Entity::builder()
-                    .descriptor(
-                        model::Descriptor::builder()
+            .entity({
+                let entity = model::Entity::builder();
+                entity
+                    .descriptor({
+                        let mut descriptor = model::Descriptor::builder();
+                        descriptor
                             .key(s!("gray_cat"))
                             .name(s!("Cat"))
-                            .description(s!("A gray cat"))));
+                            .description(s!("A gray cat"));
+                        descriptor
+                    })
+            });
 
         let litterbox_id = world.find_area("litter_box")
             .unwrap()
