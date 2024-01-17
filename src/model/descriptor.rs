@@ -52,6 +52,51 @@ pub trait DescriptiveMut: Descriptive {
     fn descriptor_mut(&mut self) -> &mut Descriptor;
 }
 
+impl Descriptive for Descriptor {
+    fn descriptor(&self) -> &Descriptor {
+        self
+    }
+}
+
+impl DescriptiveMut for Descriptor {
+    fn descriptor_mut(&mut self) -> &mut Descriptor {
+        self
+    }
+}
+
+pub enum DescriptorField {
+    Name,
+    Keywords,
+    Key,
+    ShortDescription,
+    Description
+}
+
+impl DescriptorField {
+    pub const CLASSNAME: &'static str = "Descriptor";
+    pub const FIELDNAME_NAME: &'static str = "name";
+    pub const FIELDNAME_KEYWORDS: &'static str = "keywords";
+    pub const FIELDNAME_KEY: &'static str = "key";
+    pub const FIELDNAME_SHORT_DESCRIPTION: &'static str = "short_description";
+    pub const FIELDNAME_DESCRIPTION: &'static str = "description";
+
+    pub const FIELD_NAME: Field = Field::new(Self::FIELDNAME_NAME, FieldValueType::String);
+    pub const FIELD_KEYWORDS: Field = Field::new(Self::FIELDNAME_KEYWORDS, FieldValueType::StringArray);
+    pub const FIELD_KEY: Field = Field::new(Self::FIELDNAME_KEY, FieldValueType::String);
+    pub const FIELD_SHORT_DESCRIPTION: Field = Field::new(Self::FIELDNAME_SHORT_DESCRIPTION, FieldValueType::String);
+    pub const FIELD_DESCRIPTION: Field = Field::new(Self::FIELDNAME_DESCRIPTION, FieldValueType::String);
+
+    pub const fn field(&self) -> &'static Field {
+        match self {
+            Self::Name => &Self::FIELD_NAME,
+            Self::Keywords => &Self::FIELD_KEYWORDS,
+            Self::Key => &Self::FIELD_KEY,
+            Self::ShortDescription => &Self::FIELD_SHORT_DESCRIPTION,
+            Self::Description => &Self::FIELD_DESCRIPTION 
+        }
+    }
+}
+
 pub struct DescriptorBuilder {
     builder_mode: BuilderMode,
     name: Option<String>,
@@ -142,44 +187,5 @@ impl DescriptorBuilder {
 
 impl Build for Descriptor {
     type BuilderType = DescriptorBuilder;
-}
-
-impl Descriptive for Descriptor {
-    fn descriptor(&self) -> &Descriptor {
-        &self
-    }
-}
-
-pub enum DescriptorField {
-    Name,
-    Keywords,
-    Key,
-    ShortDescription,
-    Description
-}
-
-impl DescriptorField {
-    pub const CLASSNAME: &'static str = "Descriptor";
-    pub const FIELDNAME_NAME: &'static str = "name";
-    pub const FIELDNAME_KEYWORDS: &'static str = "keywords";
-    pub const FIELDNAME_KEY: &'static str = "key";
-    pub const FIELDNAME_SHORT_DESCRIPTION: &'static str = "short_description";
-    pub const FIELDNAME_DESCRIPTION: &'static str = "description";
-
-    pub const FIELD_NAME: Field = Field::new(Self::FIELDNAME_NAME, FieldValueType::String);
-    pub const FIELD_KEYWORDS: Field = Field::new(Self::FIELDNAME_KEYWORDS, FieldValueType::StringArray);
-    pub const FIELD_KEY: Field = Field::new(Self::FIELDNAME_KEY, FieldValueType::String);
-    pub const FIELD_SHORT_DESCRIPTION: Field = Field::new(Self::FIELDNAME_SHORT_DESCRIPTION, FieldValueType::String);
-    pub const FIELD_DESCRIPTION: Field = Field::new(Self::FIELDNAME_DESCRIPTION, FieldValueType::String);
-
-    pub const fn field(&self) -> &'static Field {
-        match self {
-            Self::Name => &Self::FIELD_NAME,
-            Self::Keywords => &Self::FIELD_KEYWORDS,
-            Self::Key => &Self::FIELD_KEY,
-            Self::ShortDescription => &Self::FIELD_SHORT_DESCRIPTION,
-            Self::Description => &Self::FIELD_DESCRIPTION 
-        }
-    }
 }
 
