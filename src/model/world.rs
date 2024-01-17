@@ -1,4 +1,4 @@
-use crate::{s, model::{identity::*, descriptor::*, entity::*, thing::*, area::*, access::*, builder::*}};
+use crate::{s, model::{error::*, identity::*, descriptor::*, entity::*, something::*, thing::*, area::*, access::*, builder::*}};
 
 #[derive(Debug)]
 pub struct World {
@@ -10,12 +10,12 @@ pub struct World {
     access_groups: Vec<AccessGroup>
 }
 
-pub struct WorldBuilder<'original> {
-    areas: Vec<AreaBuilder<'original>>,
-    next_id: u64,
+pub struct WorldBuilder {
+    areas: Vec<AreaBuilder>,
+    next_id: ID,
 }
 
-impl<'original> WorldBuilder<'original> {
+impl WorldBuilder {
     pub fn new() -> Self {
         Self {
             areas: Vec::new(),
@@ -23,39 +23,38 @@ impl<'original> WorldBuilder<'original> {
         }
     }
 
-    fn generate_id(&mut self) -> u64 {
+    fn generate_id(&mut self) -> ID {
         let id = self.next_id;
         self.next_id += 1;
         id
     }
 
-    pub fn area(mut self, area: AreaBuilder<'original>) -> Self {
+    pub fn area(mut self, area: AreaBuilder) -> Self {
         let area = area.id(self.generate_id());
         self.areas.push(area);
         self
     }
 
-    pub fn build(self) -> World {
-        let mut descriptor = Descriptor::builder();
-        descriptor
-            .name(s!("The World"))
-            .description(s!("It's a brave new world"));
+    pub fn build(self) -> Result<World> {
+        let mut descriptor = Descriptor::creator();
+        descriptor.name(s!("The World"))?;
+        descriptor.description(s!("It's a brave new world"))?;
 
-        World {
+        Ok(World {
             next_id: self.next_id + 1,
             players: Vec::new(),
             access_groups: Vec::new(),
-            descriptor: descriptor.build(),
+            descriptor: descriptor.create().unwrap(),
             areas: self.areas.into_iter()
                 .map(|area| area.build())
                 .collect(),
             things: Vec::new(),
-        }
+        })
     }
 }
 
-impl<'original> World {
-    pub fn builder() -> WorldBuilder<'original> {
+impl World {
+    pub fn builder() -> WorldBuilder {
         WorldBuilder::new()
     }
 
@@ -101,10 +100,13 @@ impl<'original> World {
         self.things.iter_mut().find(|thing| thing.key().is_some_and(|k| k == key))
     }
 
-    pub fn spawn_thing(&mut self, thing: impl ThingBuilder<'original>, area_id: ID) -> Result<ID,()> {
+    pub fn spawn_thing(&mut self, mut thing: impl ThingBuilder, area_id: ID) -> Result<ID> {
         let mut area = self.area(area_id).expect("Area not found");
         let thing_id = self.generate_id();
-        let thing = thing.id(thing_id).build_thing();
+
+        thing.id(thing_id)?;
+        let thing = thing.build_thing()?;
+
         self.things.push(thing);
         Ok(thing_id)
     }

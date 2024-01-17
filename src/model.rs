@@ -1,28 +1,32 @@
 pub mod types {
 }
 
+pub mod error;
 pub mod builder;
 pub mod identity;
 pub mod descriptor;
 pub mod inventory;
 pub mod component;
 pub mod entity;
-pub mod thing;
+pub mod something;
 pub mod character;
 pub mod item;
+pub mod thing;
 pub mod area;
 pub mod access;
 pub mod world;
 
+pub use error::*;
 pub use builder::*;
 pub use identity::*;
 pub use descriptor::*;
 pub use inventory::*;
 pub use component::*;
 pub use entity::*;
-pub use thing::*;
+pub use something::*;
 pub use character::*;
 pub use item::*;
+pub use thing::*;
 pub use area::*;
 pub use world::*;
 
@@ -36,11 +40,10 @@ mod tests {
         let mut litterbox = model::Area::builder();
         litterbox
             .descriptor({
-                let mut descriptor = model::Descriptor::builder();
-                descriptor
-                    .key(s!("litter_box"))
-                    .name(s!("Litter Box"))
-                    .description(s!("A smelly litterbox"));
+                let mut descriptor = model::Descriptor::creator();
+                descriptor.key(s!("litter_box")).unwrap();
+                descriptor.name(s!("Litter Box")).unwrap();
+                descriptor.description(s!("A smelly litterbox")).unwrap();
                 descriptor
             });
     
@@ -52,16 +55,14 @@ mod tests {
 
         let cat = model::Character::builder()
             .entity({
-                let entity = model::Entity::builder();
-                entity
-                    .descriptor({
-                        let mut descriptor = model::Descriptor::builder();
-                        descriptor
-                            .key(s!("gray_cat"))
-                            .name(s!("Cat"))
-                            .description(s!("A gray cat"));
-                        descriptor
-                    })
+                let entity = model::Entity::creator();
+                entity.descriptor({
+                    let mut descriptor = model::Descriptor::creator();
+                    descriptor.key(s!("gray_cat"));
+                    descriptor.name(s!("Cat"));
+                    descriptor.description(s!("A gray cat"));
+                    descriptor
+                })
             });
 
         let litterbox_id = world.find_area("litter_box")
@@ -85,12 +86,12 @@ mod tests {
 
         let mut cat = world.find_thing_mut("gray_cat").unwrap();
 
-        let mut cat_descriptor_editor = Descriptor::editor(cat.descriptor_mut());
+        let mut cat_descriptor_editor = Descriptor::editor();
         cat_descriptor_editor.description(s!("A slightly gray cat"));
-        let fields_changed = cat_descriptor_editor.edit(None).unwrap();
+        let fields_changed = cat_descriptor_editor.modify(cat.descriptor_mut()).unwrap();
 
-        let cat_editor = Entity::editor(cat.entity_mut());
-        cat_editor.edit(None/*todo*/).unwrap();
+        let cat_editor = Entity::editor();
+        cat_editor.modify(cat).unwrap();
 
         let cat = world.find_thing("gray_cat").unwrap();
         assert_eq!("A slightly gray cat", cat.description().unwrap());

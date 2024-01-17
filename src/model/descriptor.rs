@@ -1,4 +1,4 @@
-use crate::model::builder::*;
+use crate::{s, model::{error::*, builder::*}};
 
 /// All descriptive information about and object that can be observed by a player.
 /// See also its corresponding trait: `Descriptive`
@@ -52,8 +52,8 @@ pub trait DescriptiveMut: Descriptive {
     fn descriptor_mut(&mut self) -> &mut Descriptor;
 }
 
-pub struct DescriptorBuilder<'original> {
-    original: Option<&'original mut Descriptor>,
+pub struct DescriptorBuilder {
+    builder_mode: BuilderMode,
     name: Option<String>,
     keywords: Option<Vec<String>>,
     key: Option<String>,
@@ -61,12 +61,12 @@ pub struct DescriptorBuilder<'original> {
     description: Option<String>
 }
 
-impl<'original> Builder<'original> for DescriptorBuilder<'original> {
+impl Builder for DescriptorBuilder {
     type Type = Descriptor;
 
-    fn new() -> Self {
+    fn creator() -> Self {
         Self {
-            original: None,
+            builder_mode: BuilderMode::Creator,
             name: None,
             keywords: None,
             key: None,
@@ -75,76 +75,73 @@ impl<'original> Builder<'original> for DescriptorBuilder<'original> {
         }
     }
 
-    fn editor(original: &'original mut Descriptor) -> Self {
-        let mut s = Self::new();
-        s.original = Some(original);
-        s
+    fn editor() -> Self {
+        Self {
+            builder_mode: BuilderMode::Editor,
+            ..Self::creator() 
+        }
     }
 
-    fn build(self) -> Descriptor {
-        Descriptor {
-            name: self.name.expect("Name not set"),
+    fn builder_mode(&self) -> BuilderMode {
+        self.builder_mode
+    }
+
+    fn create(self) -> Result<Descriptor> {
+        Ok(Descriptor {
+            name: self.name.ok_or_else(||
+                Error::FieldNotSet { class: DescriptorField::CLASSNAME, field: DescriptorField::FIELDNAME_NAME})?,
             keywords: self.keywords.unwrap_or_else(|| Vec::new()),
             key: self.key,
             short_description: self.short_description,
             description: self.description
-        }
+        })
     }
 
-    fn edit(mut self, component_fields_changed: Option<Vec<Field>>) -> Result<Vec<Field>, ()> {
-        let original = self.original.unwrap();
-        let mut result = Vec::new();
+    fn modify(self, original: &mut Descriptor) -> Result<ModifyResult> {
+        let mut fields_changed = Vec::new();
+
         if let Some(name) = self.name {
             original.name = name;
-            result.push(DescriptorField::name.field());
+            fields_changed.push(DescriptorField::Name.field());
         }
         if self.description.is_some() {
             original.description = self.description;
-            result.push(DescriptorField::description.field());
+            fields_changed.push(DescriptorField::Description.field());
         }
 
-        Ok(result)
+        Ok(ModifyResult::new(fields_changed))
     }
 
-    fn set(&mut self, field: &str, raw_value: String) -> Result<(), ()> {
-        match field {
-            DescriptorBuilder::FIELD_NAME => { self.name(raw_value); },
-            DescriptorBuilder::FIELD_DESCRIPTION => { self.description(raw_value); },
-            _ => return Err(())
+    fn set(&mut self, raw_field: &str, raw_value: String) -> Result<()> {
+        match raw_field {
+            DescriptorField::FIELDNAME_NAME => self.name(raw_value)?,
+            DescriptorField::FIELDNAME_DESCRIPTION => self.description(raw_value)?,
+            _ => bail!(Error::UnknownField{class: DescriptorField::CLASSNAME, field: s!(raw_field) })
         }
 
         Ok(())
     }
 }
 
-impl DescriptorBuilder<'_> {
-    pub const FIELD_NAME: &'static str = "name";
-    pub const FIELD_DESCRIPTION: &'static str = "description";
-
-    pub fn key(&mut self, key: String) -> &mut Self {
+impl DescriptorBuilder {
+    pub fn key(&mut self, key: String) -> Result<()> {
         self.key = Some(key);
-        self
+        Ok(())
     }
 
-    pub fn name(&mut self, name: String) -> &mut Self {
+    pub fn name(&mut self, name: String) -> Result<()> {
         self.name = Some(name);
-        self
+        Ok(())
     }
 
-    pub fn description(&mut self, description: String) -> &mut Self {
+    pub fn description(&mut self, description: String) -> Result<()> {
         self.description = Some(description);
-        self
+        Ok(())
     }
 }
 
-impl<'original> Descriptor {
-    pub fn builder() -> DescriptorBuilder<'original> {
-        DescriptorBuilder::new()
-    }
-
-    pub fn editor(&'original mut self) -> DescriptorBuilder<'original> {
-        DescriptorBuilder::editor(self)
-    }
+impl Build for Descriptor {
+    type BuilderType = DescriptorBuilder;
 }
 
 impl Descriptive for Descriptor {
@@ -153,38 +150,35 @@ impl Descriptive for Descriptor {
     }
 }
 
-#[allow(non_camel_case_types)]
 pub enum DescriptorField {
-    name,
-    keywords,
-    key,
-    short_description,
-    description
+    Name,
+    Keywords,
+    Key,
+    ShortDescription,
+    Description
 }
 
 impl DescriptorField {
-    pub const fn field(&self) -> Field {
+    pub const CLASSNAME: &'static str = "Descriptor";
+    pub const FIELDNAME_NAME: &'static str = "name";
+    pub const FIELDNAME_KEYWORDS: &'static str = "keywords";
+    pub const FIELDNAME_KEY: &'static str = "key";
+    pub const FIELDNAME_SHORT_DESCRIPTION: &'static str = "short_description";
+    pub const FIELDNAME_DESCRIPTION: &'static str = "description";
+
+    pub const FIELD_NAME: Field = Field::new(Self::FIELDNAME_NAME, FieldValueType::String);
+    pub const FIELD_KEYWORDS: Field = Field::new(Self::FIELDNAME_KEYWORDS, FieldValueType::StringArray);
+    pub const FIELD_KEY: Field = Field::new(Self::FIELDNAME_KEY, FieldValueType::String);
+    pub const FIELD_SHORT_DESCRIPTION: Field = Field::new(Self::FIELDNAME_SHORT_DESCRIPTION, FieldValueType::String);
+    pub const FIELD_DESCRIPTION: Field = Field::new(Self::FIELDNAME_DESCRIPTION, FieldValueType::String);
+
+    pub const fn field(&self) -> &'static Field {
         match self {
-            Self::name => Field {
-                name: DescriptorBuilder::FIELD_NAME,
-                value_type: FieldValueType::String,
-            },
-            Self::keywords => Field {
-                name: "keywords",
-                value_type: FieldValueType::StringArray
-            },
-            Self::key => Field {
-                name: "key",
-                value_type: FieldValueType::String
-            },
-            Self::short_description => Field {
-                name: "short_description",
-                value_type: FieldValueType::String
-            },
-            Self::description => Field {
-                name: DescriptorBuilder::FIELD_DESCRIPTION,
-                value_type: FieldValueType::String
-            }
+            Self::Name => &Self::FIELD_NAME,
+            Self::Keywords => &Self::FIELD_KEYWORDS,
+            Self::Key => &Self::FIELD_KEY,
+            Self::ShortDescription => &Self::FIELD_SHORT_DESCRIPTION,
+            Self::Description => &Self::FIELD_DESCRIPTION 
         }
     }
 }

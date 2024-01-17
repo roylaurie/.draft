@@ -1,35 +1,54 @@
-pub use crate::model::{builder::*, entity::*, descriptor::*, thing::*};
+pub use crate::{s, model::{error::*, identity::*, builder::*, descriptor::*, entity::*, something::*, thing::*}};
 
 #[derive(Debug)]
 pub struct Character {
     entity: Entity
 }
 
-pub struct CharacterBuilder<'original> {
-    id: Option<u64>,
-    entity: Option<EntityBuilder<'original>>
+pub struct CharacterBuilder {
+    builder_mode: BuilderMode,
+    id: Option<ID>,
+    entity: Option<EntityBuilder>
 }
 
-impl<'original> Builder<'original> for CharacterBuilder<'original> {
+impl Builder for CharacterBuilder {
     type Type = Character;
 
-    fn new() -> Self {
+    fn creator() -> Self {
         Self {
+            builder_mode: BuilderMode::Creator,
             id: None,
             entity: None
         }
     }
 
-    fn build(self) -> Character {
-        Character {
-            entity: self.entity.expect("Entity not set").build()
+    fn editor() -> Self {
+        Self {
+            builder_mode: BuilderMode::Editor,
+            ..Self::creator()
         }
+    }
+
+    fn builder_mode(&self) -> BuilderMode {
+        self.builder_mode
+    }
+
+    fn create(self) -> Result<Character> {
+        Ok(Character {
+            entity: self.entity
+                .ok_or_else(|| Error::FieldNotSet{class: "Entity", field: "entity"})?
+                .create()?
+        })
+    }
+
+    fn modify(self, original: &mut Self::Type) -> Result<ModifyResult> {
+        todo!()
     }
 }
 
-impl<'original> Character {
-    pub fn builder() -> CharacterBuilder<'original> {
-        CharacterBuilder::new()
+impl Character {
+    pub fn builder() -> CharacterBuilder {
+        CharacterBuilder::creator()
     }
 }
 
@@ -45,7 +64,7 @@ impl DescriptiveMut for Character {
     }
 }
 
-impl Thingy for Character {
+impl Something for Character {
     fn entity(&self) -> &Entity {
         &self.entity
     }
@@ -55,23 +74,19 @@ impl Thingy for Character {
     }
 }
 
-impl<'original> ThingBuilder<'original> for CharacterBuilder<'original> {
-    fn entity(mut self, entity: EntityBuilder<'original>) -> Self {
+impl ThingBuilder for CharacterBuilder {
+    fn id(&mut self, id: ID) -> Result<()> {
+        self.id = Some(id);
+        Ok(())
+    }
+
+    fn entity(&mut self, entity: EntityBuilder) -> Result<()> {
         self.entity = Some(entity);
-        self
+        Ok(())
     }
 
-    fn id(mut self, id: u64) -> Self {
-        match self.entity {
-            Some(entity) => self.entity = Some(entity.id(id)),
-            None => self.entity = Some(Entity::builder().id(id))
-        }
-
-        self
-    }
-
-    fn build_thing(self) -> Thing {
-        Thing::Character(self.build())
+    fn build_thing(self) -> Result<Thing> {
+        Ok(Thing::Character(self.create()?))
     }
 }
 

@@ -1,4 +1,4 @@
-use crate::model::{identity::*, builder::*, descriptor::*, inventory::*};
+use crate::{s, model::{error::*, identity::*, builder::*, descriptor::*, inventory::*}};
 
 
 #[derive(Debug)]
@@ -9,65 +9,69 @@ pub struct Entity {
     components: Vec<InventorySlot>,
 }
 
-pub struct EntityBuilder<'original> {
-    original: Option<&'original mut Entity>,
-    id: Option<u64>,
-    descriptor: Option<DescriptorBuilder<'original>>
+pub struct EntityBuilder {
+    builder_mode: BuilderMode,
+    id: Option<ID>,
+    descriptor: Option<DescriptorBuilder>
 }
 
-impl<'original> Builder<'original> for EntityBuilder<'original> {
+impl Builder for EntityBuilder {
     type Type = Entity;
 
-    fn new() -> Self {
+    fn creator() -> Self {
         Self {
-            original: None,
+            builder_mode: BuilderMode::Creator,
             id: None,
             descriptor: None
         }
     }
 
-    fn build(self) -> Self::Type {
-        Entity {
-            id: self.id.expect("ID not set"),
-            descriptor: self.descriptor.expect("Descriptor not set").build(),
-            inventory: Vec::new(),
-            components: Vec::new()
+    fn editor() -> Self {
+        Self {
+            builder_mode: BuilderMode::Editor,
+            ..Self::creator()
         }
     }
 
-    fn editor(original: &'original mut Entity) -> Self {
-        let mut s = Self::new();
-        s.original = Some(original);
-        s
+    fn builder_mode(&self) -> BuilderMode {
+        self.builder_mode
+    }
+
+    fn create(self) -> Result<Self::Type> {
+        Ok(Entity {
+            id: self.id
+                .ok_or_else(|| Error::FieldNotSet{class: "Entity", field: "id"} )?,
+            descriptor: self.descriptor
+                .ok_or_else(|| Error::FieldNotSet{class: "Entity", field: "descriptor"} )?
+                .create()?,
+            inventory: Vec::new(),
+            components: Vec::new()
+        })
     }
 
 
-    fn edit(self, composite_fields_changed: Option<Vec<Field>>) -> Result<Vec<Field>, ()> {
-        Ok(Vec::new())
+    fn modify(self, original: &mut Entity) -> Result<ModifyResult> {
+        Ok(ModifyResult::new(Vec::new()))
     }
 }
 
-impl<'original> EntityBuilder<'original> {
-    pub fn id(mut self, id: u64) -> Self {
+impl EntityBuilder {
+    pub fn id(mut self, id: u64) -> Result<()> {
         self.id = Some(id);
-        self
+        Ok(())
     }
 
-    pub fn descriptor(mut self, descriptor: DescriptorBuilder<'original>) -> Self {
+    pub fn descriptor(mut self, descriptor: DescriptorBuilder) -> Result<()> {
         self.descriptor = Some(descriptor);
-        self
+        Ok(())
     }
 }
 
-impl<'original> Entity {
-    pub fn builder() -> EntityBuilder<'original> {
-        EntityBuilder::new()
-    }
+impl Build for Entity {
+    type BuilderType = EntityBuilder;
+}
 
-    pub fn editor(&'original mut self) -> EntityBuilder<'original> {
-        EntityBuilder::editor(self)
-    }
-
+impl Entity {
     pub fn descriptor_mut(&mut self) -> &mut Descriptor {
         &mut self.descriptor
     }
@@ -83,12 +87,9 @@ impl Descriptive for Entity {
     }
 }
 
-pub trait Thingy: Descriptive {
-    fn entity(&self) -> &Entity;
-    fn entity_mut(&mut self) -> &mut Entity;
-
-    fn id(&self) -> ID {
-        self.entity().id()
+impl DescriptiveMut for Entity {
+    fn descriptor_mut(&mut self) -> &mut Descriptor {
+        &mut self.descriptor
     }
 }
 

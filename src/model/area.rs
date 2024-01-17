@@ -1,4 +1,4 @@
-use crate::model::{types::*, builder::*, identity::*, descriptor::*, entity::*};
+use crate::model::{error::*, builder::*, identity::*, descriptor::*, entity::*};
 
 #[derive(Debug)]
 pub struct Area {
@@ -8,12 +8,12 @@ pub struct Area {
     routes: Vec<Route>
 }
 
-pub struct AreaBuilder<'original> {
-    descriptor: Option<DescriptorBuilder<'original>>,
+pub struct AreaBuilder {
+    descriptor: Option<DescriptorBuilder>,
     id: Option<u64>
 }
 
-impl<'original> AreaBuilder<'original> {
+impl AreaBuilder {
     pub fn new() -> Self {
         Self {
             descriptor: None,
@@ -26,27 +26,27 @@ impl<'original> AreaBuilder<'original> {
         self
     }
 
-    pub fn descriptor(&mut self, descriptor: DescriptorBuilder<'original>) -> &mut Self {
+    pub fn descriptor(&mut self, descriptor: DescriptorBuilder) -> Result<()> {
         self.descriptor = Some(descriptor);
-        self
+        Ok(())
     }
 
     pub fn build(self) -> Area {
         Area {
             id: self.id.expect("ID not set"),
-            descriptor: self.descriptor.expect("Descriptor not set").build(),
+            descriptor: self.descriptor.expect("Descriptor not set").create().unwrap(),
             thing_ids: Vec::new(),
             routes: Vec::new()
         }
     }
 }
 
-impl<'original> Area {
+impl Area {
     pub fn id(&self) -> u64 {
         self.id
     }
 
-    pub fn builder() -> AreaBuilder<'original> {
+    pub fn builder() -> AreaBuilder {
         AreaBuilder::new()
     }
 }
