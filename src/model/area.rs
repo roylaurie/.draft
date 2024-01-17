@@ -1,4 +1,4 @@
-use crate::model::entity::*;
+use crate::model::{types::*, entity::*};
 
 #[derive(Debug)]
 pub struct Area {
@@ -8,12 +8,12 @@ pub struct Area {
     routes: Vec<Route>
 }
 
-pub struct AreaBuilder {
-    descriptor: Option<DescriptorBuilder>,
+pub struct AreaBuilder<'original> {
+    descriptor: Option<DescriptorBuilder<'original>>,
     id: Option<u64>
 }
 
-impl AreaBuilder {
+impl<'original> AreaBuilder<'original> {
     pub fn new() -> Self {
         Self {
             descriptor: None,
@@ -26,7 +26,7 @@ impl AreaBuilder {
         self
     }
 
-    pub fn descriptor(mut self, descriptor: DescriptorBuilder) -> Self {
+    pub fn descriptor(&mut self, descriptor: DescriptorBuilder<'original>) -> &mut Self {
         self.descriptor = Some(descriptor);
         self
     }
@@ -41,12 +41,12 @@ impl AreaBuilder {
     }
 }
 
-impl Area {
+impl<'original> Area {
     pub fn id(&self) -> u64 {
         self.id
     }
 
-    pub fn builder() -> AreaBuilder {
+    pub fn builder() -> AreaBuilder<'original> {
         AreaBuilder::new()
     }
 }

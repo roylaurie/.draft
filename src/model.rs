@@ -1,3 +1,10 @@
+pub mod types {
+    pub type ID = u64;
+    pub type RegionID = u16;
+    pub type WorldID = u16;
+    pub type UniverseID = u32;
+}
+
 pub mod access;
 pub mod entity;
 pub mod area;
@@ -65,9 +72,13 @@ mod tests {
         //    .edit_description(s!("A slightly gray cat"));
 
         let mut cat = world.find_thing_mut("gray_cat").unwrap();
-        Descriptor::editor()
-            .description(s!("A slightly gray cat"))
-            .edit(cat.descriptor_mut());
+
+        let mut cat_descriptor_editor = Descriptor::editor(cat.descriptor_mut());
+        cat_descriptor_editor.description(s!("A slightly gray cat"));
+        let fields_changed = cat_descriptor_editor.edit(None).unwrap();
+
+        let cat_editor = Entity::editor(cat.entity_mut());
+        cat_editor.edit(None/*todo*/).unwrap();
 
         let cat = world.find_thing("gray_cat").unwrap();
         assert_eq!("A slightly gray cat", cat.description().unwrap());

@@ -1,7 +1,4 @@
-use crate::model::entity::*;
-use crate::model::area::*;
-use crate::model::access::*;
-use crate::s;
+use crate::{s, model::{types::*, entity::*, area::*, access::*}};
 
 #[derive(Debug)]
 pub struct World {
@@ -13,12 +10,12 @@ pub struct World {
     access_groups: Vec<AccessGroup>
 }
 
-pub struct WorldBuilder {
-    areas: Vec<AreaBuilder>,
+pub struct WorldBuilder<'original> {
+    areas: Vec<AreaBuilder<'original>>,
     next_id: u64,
 }
 
-impl WorldBuilder {
+impl<'original> WorldBuilder<'original> {
     pub fn new() -> Self {
         Self {
             areas: Vec::new(),
@@ -32,7 +29,7 @@ impl WorldBuilder {
         id
     }
 
-    pub fn area(mut self, area: AreaBuilder) -> Self {
+    pub fn area(mut self, area: AreaBuilder<'original>) -> Self {
         let area = area.id(self.generate_id());
         self.areas.push(area);
         self
@@ -57,8 +54,8 @@ impl WorldBuilder {
     }
 }
 
-impl World {
-    pub fn builder() -> WorldBuilder {
+impl<'original> World {
+    pub fn builder() -> WorldBuilder<'original> {
         WorldBuilder::new()
     }
 
@@ -104,7 +101,7 @@ impl World {
         self.things.iter_mut().find(|thing| thing.key().is_some_and(|k| k == key))
     }
 
-    pub fn spawn_thing(&mut self, thing: impl ThingBuilder, area_id: ID) -> Result<ID,()> {
+    pub fn spawn_thing(&mut self, thing: impl ThingBuilder<'original>, area_id: ID) -> Result<ID,()> {
         let mut area = self.area(area_id).expect("Area not found");
         let thing_id = self.generate_id();
         let thing = thing.id(thing_id).build_thing();

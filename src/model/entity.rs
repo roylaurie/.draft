@@ -1,9 +1,4 @@
-use std::collections::HashMap;
-
-pub type ID = u64;
-pub type RegionID = u16;
-pub type WorldID = u16;
-pub type UniverseID = u32;
+use crate::model::types::*;
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct Identity {
@@ -13,13 +8,14 @@ pub struct Identity {
     universe_id: UniverseID,
 }
 
-pub trait Builder: Sized {
+pub trait Builder<'original>: Sized {
     type Type;
 
     fn new() -> Self;
+    fn editor(original: &'original mut Self::Type) -> Self { todo!() }
     fn build(self) -> Self::Type; 
 
-    fn edit(self, original: &mut Self::Type) {
+    fn edit(self, composite_fields_changed: Option<Vec<Field>>) -> Result<Vec<Field>, ()> {
         todo!()
     }
 
@@ -31,6 +27,20 @@ pub trait Builder: Sized {
         self
     }
 }
+
+pub enum FieldValueType {
+    String,
+    Integer,
+    Float,
+    Boolean,
+    StringArray
+}
+
+pub struct Field {
+    pub name: &'static str,
+    pub value_type: FieldValueType
+}
+
 
 /// All descriptive information about and object that can be observed by a player.
 /// See also its corresponding trait: `Descriptive`
@@ -80,7 +90,8 @@ pub trait Descriptive {
     }
 }
 
-pub struct DescriptorBuilder {
+pub struct DescriptorBuilder<'original> {
+    original: Option<&'original mut Descriptor>,
     name: Option<String>,
     keywords: Option<Vec<String>>,
     key: Option<String>,
@@ -88,17 +99,96 @@ pub struct DescriptorBuilder {
     description: Option<String>
 }
 
-pub enum FieldValueType {
-    String,
-    Integer,
-    Float,
-    Boolean,
-    StringArray
+impl<'original> Builder<'original> for DescriptorBuilder<'original> {
+    type Type = Descriptor;
+
+    fn new() -> Self {
+        Self {
+            original: None,
+            name: None,
+            keywords: None,
+            key: None,
+            short_description: None,
+            description: None
+        }
+    }
+
+    fn editor(original: &'original mut Descriptor) -> Self {
+        let mut s = Self::new();
+        s.original = Some(original);
+        s
+    }
+
+    fn build(self) -> Descriptor {
+        Descriptor {
+            name: self.name.expect("Name not set"),
+            keywords: self.keywords.unwrap_or_else(|| Vec::new()),
+            key: self.key,
+            short_description: self.short_description,
+            description: self.description
+        }
+    }
+
+    fn edit(mut self, component_fields_changed: Option<Vec<Field>>) -> Result<Vec<Field>, ()> {
+        let original = self.original.unwrap();
+        let mut result = Vec::new();
+        if let Some(name) = self.name {
+            original.name = name;
+            result.push(DescriptorField::name.field());
+        }
+        if self.description.is_some() {
+            original.description = self.description;
+            result.push(DescriptorField::description.field());
+        }
+
+        Ok(result)
+    }
+
+    fn set(&mut self, field: &str, raw_value: String) -> Result<(), ()> {
+        match field {
+            DescriptorBuilder::FIELD_NAME => { self.name(raw_value); },
+            DescriptorBuilder::FIELD_DESCRIPTION => { self.description(raw_value); },
+            _ => return Err(())
+        }
+
+        Ok(())
+    }
 }
 
-pub struct Field {
-    pub name: &'static str,
-    pub value_type: FieldValueType
+impl DescriptorBuilder<'_> {
+    pub const FIELD_NAME: &'static str = "name";
+    pub const FIELD_DESCRIPTION: &'static str = "description";
+
+    pub fn key(&mut self, key: String) -> &mut Self {
+        self.key = Some(key);
+        self
+    }
+
+    pub fn name(&mut self, name: String) -> &mut Self {
+        self.name = Some(name);
+        self
+    }
+
+    pub fn description(&mut self, description: String) -> &mut Self {
+        self.description = Some(description);
+        self
+    }
+}
+
+impl<'original> Descriptor {
+    pub fn builder() -> DescriptorBuilder<'original> {
+        DescriptorBuilder::new()
+    }
+
+    pub fn editor(&'original mut self) -> DescriptorBuilder<'original> {
+        DescriptorBuilder::editor(self)
+    }
+}
+
+impl Descriptive for Descriptor {
+    fn descriptor(&self) -> &Descriptor {
+        &self
+    }
 }
 
 #[allow(non_camel_case_types)]
@@ -137,84 +227,6 @@ impl DescriptorField {
     }
 }
 
-impl Builder for DescriptorBuilder {
-    type Type = Descriptor;
-
-    fn new() -> Self {
-        Self {
-            name: None,
-            keywords: None,
-            key: None,
-            short_description: None,
-            description: None
-        }
-    }
-
-    fn build(self) -> Descriptor {
-        Descriptor {
-            name: self.name.expect("Name not set"),
-            keywords: self.keywords.unwrap_or_else(|| Vec::new()),
-            key: self.key,
-            short_description: self.short_description,
-            description: self.description
-        }
-    }
-
-    fn edit(self, original: &mut Descriptor) {
-        if let Some(name) = self.name {
-            original.name = name;
-        }
-        if self.description.is_some() {
-            original.description = self.description;
-        }
-    }
-
-    fn set(&mut self, field: &str, raw_value: String) -> Result<(), ()> {
-        match field {
-            DescriptorBuilder::FIELD_NAME => { self.name(raw_value); },
-            DescriptorBuilder::FIELD_DESCRIPTION => { self.description(raw_value); },
-            _ => return Err(())
-        }
-
-        Ok(())
-    }
-}
-
-impl DescriptorBuilder {
-    pub const FIELD_NAME: &'static str = "name";
-    pub const FIELD_DESCRIPTION: &'static str = "description";
-
-    pub fn key(&mut self, key: String) -> &mut Self {
-        self.key = Some(key);
-        self
-    }
-
-    pub fn name(&mut self, name: String) -> &mut Self {
-        self.name = Some(name);
-        self
-    }
-
-    pub fn description(&mut self, description: String) -> &mut Self {
-        self.description = Some(description);
-        self
-    }
-}
-
-impl Descriptor {
-    pub fn builder() -> DescriptorBuilder {
-        DescriptorBuilder::new()
-    }
-
-    pub fn editor() -> DescriptorBuilder {
-        DescriptorBuilder::new()
-    }
-}
-
-impl Descriptive for Descriptor {
-    fn descriptor(&self) -> &Descriptor {
-        &self
-    }
-}
 
 pub struct ComponentSlot {
     id: ID,
@@ -237,16 +249,18 @@ pub struct Entity {
     components: Vec<InventorySlot>,
 }
 
-pub struct EntityBuilder {
+pub struct EntityBuilder<'original> {
+    original: Option<&'original mut Entity>,
     id: Option<u64>,
-    descriptor: Option<DescriptorBuilder>
+    descriptor: Option<DescriptorBuilder<'original>>
 }
 
-impl Builder for EntityBuilder {
+impl<'original> Builder<'original> for EntityBuilder<'original> {
     type Type = Entity;
 
     fn new() -> Self {
         Self {
+            original: None,
             id: None,
             descriptor: None
         }
@@ -260,23 +274,42 @@ impl Builder for EntityBuilder {
             components: Vec::new()
         }
     }
+
+    fn editor(original: &'original mut Entity) -> Self {
+        let mut s = Self::new();
+        s.original = Some(original);
+        s
+    }
+
+
+    fn edit(self, composite_fields_changed: Option<Vec<Field>>) -> Result<Vec<Field>, ()> {
+        Ok(Vec::new())
+    }
 }
 
-impl EntityBuilder {
+impl<'original> EntityBuilder<'original> {
     pub fn id(mut self, id: u64) -> Self {
         self.id = Some(id);
         self
     }
 
-    pub fn descriptor(mut self, descriptor: DescriptorBuilder) -> Self {
+    pub fn descriptor(mut self, descriptor: DescriptorBuilder<'original>) -> Self {
         self.descriptor = Some(descriptor);
         self
     }
 }
 
-impl Entity {
-    pub fn builder() -> EntityBuilder {
+impl<'original> Entity {
+    pub fn builder() -> EntityBuilder<'original> {
         EntityBuilder::new()
+    }
+
+    pub fn editor(&'original mut self) -> EntityBuilder<'original> {
+        EntityBuilder::editor(self)
+    }
+
+    pub fn descriptor_mut(&mut self) -> &mut Descriptor {
+        &mut self.descriptor
     }
 
     pub fn id(&self) -> ID {
@@ -292,6 +325,7 @@ impl Descriptive for Entity {
 
 pub trait Thingy: Descriptive {
     fn entity(&self) -> &Entity;
+    fn entity_mut(&mut self) -> &mut Entity;
 
     fn id(&self) -> ID {
         self.entity().id()
@@ -324,6 +358,15 @@ impl Thingy for Thing {
         }
     }
 
+    fn entity_mut(&mut self) -> &mut Entity {
+        match self {
+            Thing::Generic(_t) => todo!(),
+            Thing::Character(t) => t.entity_mut(),
+            Thing::Item(_t) => todo!(),
+        }
+    }
+
+
     fn id(&self) -> ID {
         match self {
             Thing::Generic(_t) => todo!(),
@@ -334,7 +377,7 @@ impl Thingy for Thing {
     }
 }
 
-impl Thing {
+impl<'original> Thing {
     pub fn descriptor_mut(&mut self) -> &mut Descriptor {
         match self {
             Thing::Generic(_t) => todo!(),
@@ -343,8 +386,8 @@ impl Thing {
         }
     }
 
-    pub fn edit_description(&mut self, description: String) {
-        self.descriptor_mut().description = Some(description);
+    pub fn editor(&'original mut self) -> EntityBuilder<'original> {
+        self.entity_mut().editor()
     }
 }
 
@@ -353,12 +396,12 @@ pub struct Character {
     entity: Entity
 }
 
-pub struct CharacterBuilder {
+pub struct CharacterBuilder<'original> {
     id: Option<u64>,
-    entity: Option<EntityBuilder>
+    entity: Option<EntityBuilder<'original>>
 }
 
-impl Builder for CharacterBuilder {
+impl<'original> Builder<'original> for CharacterBuilder<'original> {
     type Type = Character;
 
     fn new() -> Self {
@@ -375,14 +418,14 @@ impl Builder for CharacterBuilder {
     }
 }
 
-pub trait ThingBuilder {
-    fn entity(self, entity: EntityBuilder) -> Self;
+pub trait ThingBuilder<'original> {
+    fn entity(self, entity: EntityBuilder<'original>) -> Self;
     fn id(self, id: u64) -> Self;
     fn build_thing(self) -> Thing;
 }
 
-impl ThingBuilder for CharacterBuilder {
-    fn entity(mut self, entity: EntityBuilder) -> Self {
+impl<'original> ThingBuilder<'original> for CharacterBuilder<'original> {
+    fn entity(mut self, entity: EntityBuilder<'original>) -> Self {
         self.entity = Some(entity);
         self
     }
@@ -401,8 +444,8 @@ impl ThingBuilder for CharacterBuilder {
     }
 }
 
-impl Character {
-    pub fn builder() -> CharacterBuilder {
+impl<'original> Character {
+    pub fn builder() -> CharacterBuilder<'original> {
         CharacterBuilder::new()
     }
 
@@ -420,6 +463,10 @@ impl Descriptive for Character {
 impl Thingy for Character {
     fn entity(&self) -> &Entity {
         &self.entity
+    }
+
+    fn entity_mut(&mut self) -> &mut Entity {
+        &mut self.entity
     }
 }
 
