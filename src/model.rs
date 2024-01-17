@@ -1,16 +1,28 @@
 pub mod types {
-    pub type ID = u64;
-    pub type RegionID = u16;
-    pub type WorldID = u16;
-    pub type UniverseID = u32;
 }
 
-pub mod access;
+pub mod builder;
+pub mod identity;
+pub mod descriptor;
+pub mod inventory;
+pub mod component;
 pub mod entity;
+pub mod thing;
+pub mod character;
+pub mod item;
 pub mod area;
+pub mod access;
 pub mod world;
 
+pub use builder::*;
+pub use identity::*;
+pub use descriptor::*;
+pub use inventory::*;
+pub use component::*;
 pub use entity::*;
+pub use thing::*;
+pub use character::*;
+pub use item::*;
 pub use area::*;
 pub use world::*;
 

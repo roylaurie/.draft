@@ -1,4 +1,4 @@
-use crate::model::{types::*, entity::*};
+use crate::model::{types::*, builder::*, identity::*, descriptor::*, entity::*};
 
 #[derive(Debug)]
 pub struct Area {

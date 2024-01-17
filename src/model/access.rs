@@ -1,4 +1,4 @@
-use super::ID;
+use crate::model::identity::*;
 
 #[derive(Debug)]
 pub struct Permission(u32);

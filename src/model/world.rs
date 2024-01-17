@@ -1,4 +1,4 @@
-use crate::{s, model::{types::*, entity::*, area::*, access::*}};
+use crate::{s, model::{identity::*, descriptor::*, entity::*, thing::*, area::*, access::*, builder::*}};
 
 #[derive(Debug)]
 pub struct World {
