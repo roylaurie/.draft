@@ -148,7 +148,53 @@ impl Builder for IdentityBuilder {
     }
 }
 
+impl IdentityBuilder {
+    pub fn id(&mut self, id: ID) -> Result<()> {
+        self.id = Some(id);
+        Ok(())
+    }
+    
+    pub fn region_id(&mut self, region_id: RegionID) -> Result<()> {
+        self.region_id = Some(region_id);
+        Ok(())
+    }
+
+    pub fn world_id(&mut self, world_id: WorldID) -> Result<()> {
+        self.world_id = Some(world_id);
+        Ok(())
+    }
+
+    pub fn universe_id(&mut self, universe_id: UniverseID) -> Result<()> {
+        self.universe_id = Some(universe_id);
+        Ok(())
+    }
+
+    pub fn guid(&mut self, id: ID, region_id: RegionID, world_id: WorldID, universe_id: UniverseID) -> Result<()> {
+        self.id(id)?;
+        self.region_id(region_id)?;
+        self.world_id(world_id)?;
+        self.universe_id(universe_id)?;
+        Ok(())
+    }
+}
+
 impl Build for Identity {
     type BuilderType = IdentityBuilder;
+}
+
+pub trait BuildableIdentity: Builder {
+    fn identity(&mut self, identity: IdentityBuilder) -> Result<()>; 
+    fn identity_builder(&mut self) -> &mut IdentityBuilder;
+}
+
+impl Identity {
+    pub fn new(id: ID, region_id: RegionID, world_id: WorldID, universe_id: UniverseID) -> Self {
+        Self {
+            id: id,
+            region_id: region_id,
+            world_id: world_id,
+            universe_id: universe_id,
+        }
+    }
 }
 

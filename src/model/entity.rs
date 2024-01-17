@@ -1,17 +1,46 @@
-use crate::{s, model::{error::*, identity::*, builder::*, descriptor::*, inventory::*}};
+use crate::{s, model::{error::*, identity::*, builder::*, descriptor::*, inventory::*, composition::*}};
 
 
 #[derive(Debug)]
 pub struct Entity {
-    id: ID,
+    identity: Identity,
     descriptor: Descriptor,
-    inventory: Vec<InventorySlot>,
-    components: Vec<InventorySlot>,
+    //inventory: Inventory,
+    //composition: Composition
 }
+pub enum EntityField {
+    Identity,
+    Descriptor,
+    //Inventory,
+    //Composition
+}
+
+impl EntityField {
+    pub const CLASSNAME: &'static str = "Entity";
+    pub const FIELDNAME_IDENTITY: &'static str = "identity";
+    pub const FIELDNAME_DESCRIPTOR: &'static str = "descriptor";
+    //pub const FIELDNAME_INVENTORY: &'static str = "inventory";
+    //pub const FIELDNAME_COMPOSITION: &'static str = "composition";
+
+    pub const FIELD_IDENTITY: Field = Field::new(Self::FIELDNAME_IDENTITY, FieldValueType::Object);
+    pub const FIELD_DESCRIPTOR: Field = Field::new(Self::FIELDNAME_DESCRIPTOR, FieldValueType::Object);
+    //pub const FIELD_INVENTORY: Field = Field::new(Self::FIELDNAME_INVENTORY, FieldValueType::Object);
+    //pub const FIELD_COMPOSITION: Field = Field::new(Self::FIELDNAME_COMPOSITION, FieldValueType::Object);
+
+    pub const fn field(&self) -> &'static Field {
+        match self {
+            Self::Identity => &Self::FIELD_IDENTITY,
+            Self::Descriptor => &Self::FIELD_DESCRIPTOR,
+            //Self::Inventory => &Self::FIELD_INVENTORY,
+            //Self::Composition => &Self::FIELD_COMPOSITION,
+        }
+    }
+}
+
 
 pub struct EntityBuilder {
     builder_mode: BuilderMode,
-    id: Option<ID>,
+    identity: Option<IdentityBuilder>,
     descriptor: Option<DescriptorBuilder>
 }
 
@@ -21,7 +50,7 @@ impl Builder for EntityBuilder {
     fn creator() -> Self {
         Self {
             builder_mode: BuilderMode::Creator,
-            id: None,
+            identity: None,
             descriptor: None
         }
     }
@@ -39,46 +68,77 @@ impl Builder for EntityBuilder {
 
     fn create(self) -> Result<Self::Type> {
         Ok(Entity {
-            id: self.id
-                .ok_or_else(|| Error::FieldNotSet{class: "Entity", field: "id"} )?,
-            descriptor: self.descriptor
-                .ok_or_else(|| Error::FieldNotSet{class: "Entity", field: "descriptor"} )?
+            identity: self.identity
+                .ok_or_else(||
+                    Error::FieldNotSet{class:EntityField::CLASSNAME, field: EntityField::FIELDNAME_IDENTITY})?
                 .create()?,
-            inventory: Vec::new(),
-            components: Vec::new()
+            descriptor: self.descriptor
+                .ok_or_else(||
+                    Error::FieldNotSet{class:EntityField::CLASSNAME, field: EntityField::FIELDNAME_DESCRIPTOR})?
+                .create()?,
         })
     }
 
+    fn modify(mut self, original: &mut Entity) -> Result<ModifyResult> {
+        let mut fields_changed = Vec::new();
 
-    fn modify(self, original: &mut Entity) -> Result<ModifyResult> {
-        Ok(ModifyResult::new(Vec::new()))
+        if let Some(identity) = self.identity {
+            self.identity = Some(identity);
+            fields_changed.push(EntityField::Identity.field())
+        }
+        if let Some(descriptor) = self.descriptor {
+            self.descriptor = Some(descriptor);
+            fields_changed.push(EntityField::Identity.field())
+        }
+
+        Ok(ModifyResult::new(fields_changed))
     }
 }
 
-impl EntityBuilder {
-    pub fn id(&mut self, id: u64) -> Result<()> {
-        self.id = Some(id);
+impl BuildableIdentity for EntityBuilder {
+    fn identity(&mut self, id: IdentityBuilder) -> Result<()> {
+        self.identity = Some(id);
         Ok(())
     }
 
-    pub fn descriptor(&mut self, descriptor: DescriptorBuilder) -> Result<()> {
+    fn identity_builder(&mut self) -> &mut IdentityBuilder {
+        if self.identity.is_none() {
+            self.identity = Some(Identity::builder(self.builder_mode()));
+        }
+
+        self.identity.as_mut().unwrap()
+    }
+}
+
+impl BuildableDescriptor for EntityBuilder {
+    fn descriptor(&mut self, descriptor: DescriptorBuilder) -> Result<()> {
         self.descriptor = Some(descriptor);
         Ok(())
+    }
+
+    fn descriptor_builder(&mut self) -> &mut DescriptorBuilder {
+        if self.descriptor.is_none() {
+            self.descriptor = Some(Descriptor::builder(self.builder_mode()));
+        }
+
+        self.descriptor.as_mut().unwrap()
+    }
+}
+
+impl Ident for Entity {
+    fn identity(&self) -> &Identity {
+        &self.identity
+    }
+}
+
+impl IdentMut for Entity {
+    fn identity_mut(&mut self) -> &mut Identity {
+        &mut self.identity
     }
 }
 
 impl Build for Entity {
     type BuilderType = EntityBuilder;
-}
-
-impl Entity {
-    pub fn descriptor_mut(&mut self) -> &mut Descriptor {
-        &mut self.descriptor
-    }
-
-    pub fn id(&self) -> ID {
-        self.id
-    }
 }
 
 impl Descriptive for Entity {
@@ -92,4 +152,3 @@ impl DescriptiveMut for Entity {
         &mut self.descriptor
     }
 }
-

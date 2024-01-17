@@ -185,6 +185,11 @@ impl DescriptorBuilder {
     }
 }
 
+pub trait BuildableDescriptor: Builder {
+    fn descriptor(&mut self, descriptor: DescriptorBuilder) -> Result<()>; 
+    fn descriptor_builder(&mut self) -> &mut DescriptorBuilder;
+}
+
 impl Build for Descriptor {
     type BuilderType = DescriptorBuilder;
 }

@@ -7,11 +7,19 @@ pub trait Builder: Sized {
 
     fn editor() -> Self;
 
+    fn builder(mode: BuilderMode) -> Self {
+        match mode {
+            BuilderMode::Creator => Self::creator(),
+            BuilderMode::Editor => Self::editor()
+        }
+    }
+
     fn builder_mode(&self) -> BuilderMode;
 
     fn create(self) -> Result<Self::Type>; 
 
     fn modify(self, original: &mut Self::Type) -> Result<ModifyResult>; 
+
 
     fn set(&mut self, raw_field: &str, raw_value: String) -> Result<()> {
         todo!()
@@ -27,6 +35,10 @@ pub trait Build {
 
     fn editor() -> Self::BuilderType {
         Self::BuilderType::editor()
+    }
+
+    fn builder(mode: BuilderMode) -> Self::BuilderType {
+        Self::BuilderType::builder(mode)
     }
 }
 
@@ -59,6 +71,7 @@ pub enum FieldValueType {
     Integer,
     Float,
     Boolean,
+    Object,
     StringArray
 }
 

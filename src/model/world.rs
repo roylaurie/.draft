@@ -2,7 +2,8 @@ use crate::{s, model::{error::*, identity::*, descriptor::*, entity::*, somethin
 
 #[derive(Debug)]
 pub struct World {
-    next_id: u64,
+    identity: Identity,
+    next_id: ID,
     descriptor: Descriptor,
     areas: Vec<Area>,
     things: Vec<Thing>,
@@ -41,6 +42,7 @@ impl WorldBuilder {
         descriptor.description(s!("It's a brave new world"))?;
 
         Ok(World {
+            identity: Identity::new(0, 0, 1, 1),
             next_id: self.next_id + 1,
             players: Vec::new(),
             access_groups: Vec::new(),
@@ -104,7 +106,12 @@ impl World {
         let mut area = self.area(area_id).expect("Area not found");
         let thing_id = self.generate_id();
 
-        thing.entity_builder().id(thing_id)?;
+        thing.entity_builder().identity_builder().guid(
+            thing_id,
+            self.identity.region_id(),
+            self.identity.world_id(),
+            self.identity.universe_id())?;
+
         let thing = thing.build_thing()?;
 
         self.things.push(thing);
