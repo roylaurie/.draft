@@ -51,7 +51,8 @@ impl Something for Thing {
 }
 
 pub trait ThingBuilder: Builder {
-    fn id(&mut self, id: ID) -> Result<()>;
     fn entity(&mut self, entity: EntityBuilder) -> Result<()>;
+    fn entity_builder(&mut self) -> &mut EntityBuilder;
+
     fn build_thing(self) -> Result<Thing>;
 }

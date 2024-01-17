@@ -104,7 +104,7 @@ impl World {
         let mut area = self.area(area_id).expect("Area not found");
         let thing_id = self.generate_id();
 
-        thing.id(thing_id)?;
+        thing.entity_builder().id(thing_id)?;
         let thing = thing.build_thing()?;
 
         self.things.push(thing);

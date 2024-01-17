@@ -38,36 +38,36 @@ mod tests {
     #[test]
     fn test_manual_building() {
         let mut litterbox = model::Area::builder();
-        litterbox
-            .descriptor({
-                let mut descriptor = model::Descriptor::creator();
-                descriptor.key(s!("litter_box")).unwrap();
-                descriptor.name(s!("Litter Box")).unwrap();
-                descriptor.description(s!("A smelly litterbox")).unwrap();
-                descriptor
-            });
-    
+        litterbox.descriptor({
+            let mut descriptor = model::Descriptor::creator();
+            descriptor.key(s!("litter_box")).unwrap();
+            descriptor.name(s!("Litter Box")).unwrap();
+            descriptor.description(s!("A smelly litterbox")).unwrap();
+            descriptor
+        }).unwrap();
+
         let mut world = model::World::builder()
             .area(litterbox)
-            .build();
+            .build().unwrap();
 
         dbg!(&world);
-
-        let cat = model::Character::builder()
-            .entity({
-                let entity = model::Entity::creator();
-                entity.descriptor({
-                    let mut descriptor = model::Descriptor::creator();
-                    descriptor.key(s!("gray_cat"));
-                    descriptor.name(s!("Cat"));
-                    descriptor.description(s!("A gray cat"));
-                    descriptor
-                })
-            });
 
         let litterbox_id = world.find_area("litter_box")
             .unwrap()
             .id();
+
+        let mut cat = model::Character::creator();
+        cat.entity({
+            let mut entity = model::Entity::creator();
+            entity.descriptor({
+                let mut descriptor = model::Descriptor::creator();
+                descriptor.key(s!("gray_cat")).unwrap();
+                descriptor.name(s!("Cat")).unwrap();
+                descriptor.description(s!("A gray cat")).unwrap();
+                descriptor
+            }).unwrap();
+            entity
+        }).unwrap();
 
         let cat_id = world.spawn_thing(cat, litterbox_id).unwrap();
         let cat = world.thing(cat_id).unwrap();
@@ -81,21 +81,16 @@ mod tests {
 
         // test simple mutation
 
-        //world.find_thing_mut("gray_cat").unwrap()
-        //    .edit_description(s!("A slightly gray cat"));
-
-        let mut cat = world.find_thing_mut("gray_cat").unwrap();
+        let cat = world.find_thing_mut("gray_cat").unwrap();
 
         let mut cat_descriptor_editor = Descriptor::editor();
-        cat_descriptor_editor.description(s!("A slightly gray cat"));
-        let fields_changed = cat_descriptor_editor.modify(cat.descriptor_mut()).unwrap();
+        cat_descriptor_editor.description(s!("A slightly gray cat")).unwrap();
+        cat_descriptor_editor.modify(cat.descriptor_mut()).unwrap();
 
         let cat_editor = Entity::editor();
-        cat_editor.modify(cat).unwrap();
+        cat_editor.modify(cat.entity_mut()).unwrap();
 
         let cat = world.find_thing("gray_cat").unwrap();
         assert_eq!("A slightly gray cat", cat.description().unwrap());
-
-
     }
 }

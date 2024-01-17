@@ -7,7 +7,6 @@ pub struct Character {
 
 pub struct CharacterBuilder {
     builder_mode: BuilderMode,
-    id: Option<ID>,
     entity: Option<EntityBuilder>
 }
 
@@ -17,7 +16,6 @@ impl Builder for CharacterBuilder {
     fn creator() -> Self {
         Self {
             builder_mode: BuilderMode::Creator,
-            id: None,
             entity: None
         }
     }
@@ -46,10 +44,8 @@ impl Builder for CharacterBuilder {
     }
 }
 
-impl Character {
-    pub fn builder() -> CharacterBuilder {
-        CharacterBuilder::creator()
-    }
+impl Build for Character {
+    type BuilderType = CharacterBuilder;
 }
 
 impl Descriptive for Character {
@@ -75,11 +71,6 @@ impl Something for Character {
 }
 
 impl ThingBuilder for CharacterBuilder {
-    fn id(&mut self, id: ID) -> Result<()> {
-        self.id = Some(id);
-        Ok(())
-    }
-
     fn entity(&mut self, entity: EntityBuilder) -> Result<()> {
         self.entity = Some(entity);
         Ok(())
@@ -87,6 +78,14 @@ impl ThingBuilder for CharacterBuilder {
 
     fn build_thing(self) -> Result<Thing> {
         Ok(Thing::Character(self.create()?))
+    }
+
+    fn entity_builder(&mut self) -> &mut EntityBuilder {
+        if self.entity.is_none() {
+            self.entity = Some(Entity::creator())
+        }
+
+        self.entity.as_mut().unwrap()
     }
 }
 

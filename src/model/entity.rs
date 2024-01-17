@@ -56,12 +56,12 @@ impl Builder for EntityBuilder {
 }
 
 impl EntityBuilder {
-    pub fn id(mut self, id: u64) -> Result<()> {
+    pub fn id(&mut self, id: u64) -> Result<()> {
         self.id = Some(id);
         Ok(())
     }
 
-    pub fn descriptor(mut self, descriptor: DescriptorBuilder) -> Result<()> {
+    pub fn descriptor(&mut self, descriptor: DescriptorBuilder) -> Result<()> {
         self.descriptor = Some(descriptor);
         Ok(())
     }
