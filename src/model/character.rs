@@ -119,9 +119,17 @@ impl BuildableEntity for CharacterBuilder {
     }
 }
 
-impl ThingBuilder for CharacterBuilder {
-    fn build_thing(self) -> Result<Thing> {
+impl BuildableThing for CharacterBuilder {
+    fn create_thing(self) -> Result<Thing> {
         Ok(Thing::Character(self.create()?))
+    }
+
+    fn modify_thing(self, original: &mut Self::Type) -> Result<ModifyResult> {
+        Ok(self.modify(original)?)
+    }
+
+    fn thing_builder(self) -> ThingBuilder {
+        ThingBuilder::Character(self)
     }
 }
 

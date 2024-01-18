@@ -1,4 +1,4 @@
-use crate::{s, model::{error::*, identity::*, descriptor::*, entity::*, something::*, thing::*, area::*, access::*, builder::*}};
+use crate::model::{error::*, builder::*, identity::*, descriptor::*, entity::*, thing::*, area::*};
 
 #[derive(Debug)]
 pub struct World {
@@ -44,7 +44,7 @@ pub struct WorldBuilder {
     identity: Option<IdentityBuilder>,
     descriptor: Option<DescriptorBuilder>,
     areas: Vec<AreaBuilder>,
-    things: Vec<Thing>,
+    things: Vec<ThingBuilder>,
     next_id: ID,
 }
 
@@ -73,19 +73,77 @@ impl Builder for WorldBuilder {
         self.builder_mode
     }
 
-    fn create(self) -> Result<Self::Type> {
+    fn create(mut self) -> Result<Self::Type> {
+        let identity = self.identity.as_ref()
+            .ok_or_else(|| Error::FieldNotSet {class: WorldField::CLASSNAME, field: WorldField::FIELDNAME_IDENTITY})?
+            .clone()
+            .create()?;
+
+        let mut next_id = self.generate_id();
+        for area in &mut self.areas {
+            let identity_builder = area.identity_builder();
+            identity_builder.universe_id(identity.universe_id())?;
+            identity_builder.world_id(identity.world_id())?;
+            identity_builder.region_id(identity.region_id())?;
+            identity_builder.id(next_id)?;
+            next_id += 1;
+        }
+
+        for thing in &mut self.things {
+            let identity_builder = thing.entity_builder().identity_builder();
+            identity_builder.universe_id(identity.universe_id())?;
+            identity_builder.world_id(identity.world_id())?;
+            identity_builder.region_id(identity.region_id())?;
+            identity_builder.id(next_id)?;
+            next_id += 1;
+        }
+
+        self.next_id = next_id;
+
         Ok(World {
-            identity: self.identity.unwrap().create()?,
-            descriptor: self.descriptor.unwrap().create()?,
+            identity,
+            descriptor: self.descriptor
+                .ok_or_else(||
+                    Error::FieldNotSet {class: WorldField::CLASSNAME, field: WorldField::FIELDNAME_IDENTITY})?
+                .create()?,
             areas: self.areas.into_iter()
                 .map(|area| { area.create() })
                 .collect::<Result<Vec<_>,_>>()?,
-            things: Vec::new(),
+            things: self.things.into_iter()
+                .map(|thing| { thing.create() })
+                .collect::<Result<Vec<_>,_>>()?,
             next_id: self.next_id + 1,
         })
     }
 
     fn modify(self, original: &mut Self::Type) -> Result<ModifyResult> {
+        for mut area in self.areas {
+            let identity_builder = area.identity_builder();
+            identity_builder.universe_id(original.identity().universe_id())?;
+            identity_builder.world_id(original.identity().world_id())?;
+            identity_builder.region_id(original.identity().region_id())?;
+            identity_builder.id(original.generate_id())?;
+
+            original.areas.push(area.create()?);
+        }
+
+        for mut thing in self.things {
+            if !thing.entity_builder().has_identity() {
+                let identity_builder = thing.entity_builder().identity_builder();
+                identity_builder.universe_id(original.identity().universe_id())?;
+                identity_builder.world_id(original.identity().world_id())?;
+                identity_builder.region_id(original.identity().region_id())?;
+                identity_builder.id(original.generate_id())?;
+            }
+
+            original.things.push(thing.create()?);
+        }
+
+
+        if let Some(descriptor) = self.descriptor {
+            original.descriptor = descriptor.create()?;
+        }
+
         Ok(ModifyResult::new(Vec::new()))
     }
 }
@@ -125,23 +183,16 @@ impl BuildableDescriptor for WorldBuilder {
 }
 
 impl BuildableAreaVector for WorldBuilder {
-    fn add_area(&mut self, mut area: AreaBuilder) -> Result<ID> {
-        let id = self.generate_id();
-        let identity = self.get_identity().ok_or_else(||
-            Error::FieldNotSetFirst{class: WorldField::CLASSNAME, field: WorldField::FIELDNAME_AREAS,
-                required_field: WorldField::FIELDNAME_IDENTITY})?;
-        area.identity_builder().guid(
-            id,
-            identity.get_region_id()
-                .expect("World Region ID must be set before adding areas"),
-            identity.get_world_id()
-                .expect("World ID must be set before adding areas"),
-            identity.get_universe_id()
-                .expect("World Universe ID must be set before adding areas")
-        )?;
-
+    fn add_area(&mut self, area: AreaBuilder) -> Result<()> {
         self.areas.push(area);
-        Ok(id)
+        Ok(())
+    }
+}
+
+impl BuildableThingVector for WorldBuilder {
+    fn add_thing(&mut self, thing: ThingBuilder) -> Result<()> {
+       self.things.push(thing); 
+       Ok(())
     }
 }
 
@@ -224,8 +275,8 @@ impl World {
         self.things.iter_mut().find(|thing| thing.key().is_some_and(|k| k == key))
     }
 
-    pub fn spawn_thing(&mut self, mut thing: impl ThingBuilder, area_id: ID) -> Result<ID> {
-        let mut area = self.area(area_id).expect("Area not found");
+    pub fn spawn_thing(&mut self, mut thing: ThingBuilder, area_id: ID) -> Result<ID> {
+        let area = self.area(area_id).expect("Area not found");
         let thing_id = self.generate_id();
 
         thing.entity_builder().identity_builder().guid(
@@ -234,9 +285,10 @@ impl World {
             self.identity.world_id(),
             self.identity.universe_id())?;
 
-        let thing = thing.build_thing()?;
+        let mut world_editor = World::editor();
+        world_editor.add_thing(thing)?;
+        let _result = world_editor.modify(self)?;
 
-        self.things.push(thing);
         Ok(thing_id)
     }
 }

@@ -79,7 +79,7 @@ impl IdentityField {
     }
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct IdentityBuilder {
     builder_mode: BuilderMode,
     id: Option<ID>,
@@ -203,6 +203,10 @@ pub trait BuildableIdentity: Builder {
     fn identity(&mut self, identity: IdentityBuilder) -> Result<()>; 
     fn identity_builder(&mut self) -> &mut IdentityBuilder;
     fn get_identity(&self) -> Option<&IdentityBuilder>;
+
+    fn has_identity(&self) -> bool {
+        self.get_identity().is_some()
+    }
 }
 
 impl Identity {

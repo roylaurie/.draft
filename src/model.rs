@@ -44,9 +44,9 @@ mod tests {
 
         world_creator.descriptor({
                 let mut descriptor = model::Descriptor::creator();
-                descriptor.key(s!("world_01")).unwrap();
-                descriptor.name(s!("The World")).unwrap();
-                descriptor.description(s!("A miniature world")).unwrap();
+                descriptor.key(s!("unit_test_world")).unwrap();
+                descriptor.name(s!("Unit Test World")).unwrap();
+                descriptor.description(s!("A world where all models are equally buggy")).unwrap();
                 descriptor
         }).unwrap();
 
@@ -56,26 +56,68 @@ mod tests {
                 let mut descriptor = model::Descriptor::creator();
                 descriptor.key(s!("litter_box")).unwrap();
                 descriptor.name(s!("Litter Box")).unwrap();
-                descriptor.description(s!("A smelly litterbox")).unwrap();
+                descriptor.description(s!("A smelly litter box")).unwrap();
                 descriptor
             }).unwrap();
             area_creator
+        }).unwrap();
+
+        world_creator.add_thing({
+            let mut character_creator = model::Character::creator();
+            let descriptor_creator = character_creator.entity_builder().descriptor_builder();
+            descriptor_creator.key(s!("black_cat")).unwrap();
+            descriptor_creator.name(s!("Black Cat")).unwrap();
+            descriptor_creator.description(s!("A cat with a shiny black coat")).unwrap();
+            character_creator.thing_builder()
         }).unwrap();
 
         world_creator.create().unwrap()
     }
 
     #[test]
+    fn test_create_world() {
+        let world = create_world();
+        dbg!(&world);
+
+        assert_eq!("Litter Box", world.find_area("litter_box").unwrap().name());
+        assert_eq!("Black Cat", world.find_thing("black_cat").unwrap().name());
+    }
+
+    #[test]
+    fn test_spawn_thing() {
+        let mut world = create_world();
+
+        let area = world.find_area("litter_box").unwrap();
+
+        let mut character_creator = model::Character::creator();
+        character_creator.entity({
+            let mut entity_creator = model::Entity::creator();
+            entity_creator.descriptor({
+                let mut descriptor_creator = model::Descriptor::creator();
+                descriptor_creator.key(s!("gray_cat")).unwrap();
+                descriptor_creator.name(s!("Gray Cat")).unwrap();
+                descriptor_creator.description(s!("A gray cat")).unwrap();
+                descriptor_creator
+            }).unwrap();
+            entity_creator
+        }).unwrap();
+
+        let thing_id = world.spawn_thing(character_creator.thing_builder(), area.id()).unwrap();
+        let thing = world.thing(thing_id).unwrap();
+
+        assert_eq!("A gray cat", thing.description().unwrap());
+    }
+
+    #[test]
     fn test_manual_building() {
         let mut world = create_world();
-        dbg!(&world);
 
         let litterbox_id = world.find_area("litter_box")
             .unwrap()
             .id();
 
-        let mut cat = model::Character::creator();
-        cat.entity({
+        let mut gray_cat = model::Character::creator();
+        gray_cat.entity({
             let mut entity = model::Entity::creator();
             entity.descriptor({
                 let mut descriptor = model::Descriptor::creator();
@@ -87,28 +129,28 @@ mod tests {
             entity
         }).unwrap();
 
-        let cat_id = world.spawn_thing(cat, litterbox_id).unwrap();
-        let cat = world.thing(cat_id).unwrap();
+        let gray_cat_id = world.spawn_thing(gray_cat.thing_builder(), litterbox_id).unwrap();
+        let gray_cat = world.thing(gray_cat_id).unwrap();
 
-        assert_eq!("Cat", cat.name());
+        assert_eq!("Cat", gray_cat.name());
 
         let result = world.find_things("Cat");
-        let cat = result.first().unwrap();
+        let gray_cat = result.first().unwrap();
 
-        assert_eq!("A gray cat", cat.description().unwrap());
+        assert_eq!("A gray cat", gray_cat.description().unwrap());
 
         // test simple mutation
 
-        let cat = world.find_thing_mut("gray_cat").unwrap();
+        let gray_cat = world.find_thing_mut("gray_cat").unwrap();
 
-        let mut cat_descriptor_editor = Descriptor::editor();
-        cat_descriptor_editor.description(s!("A slightly gray cat")).unwrap();
-        cat_descriptor_editor.modify(cat.descriptor_mut()).unwrap();
+        let mut gray_cat_descriptor_editor = Descriptor::editor();
+        gray_cat_descriptor_editor.description(s!("A slightly gray cat")).unwrap();
+        gray_cat_descriptor_editor.modify(gray_cat.descriptor_mut()).unwrap();
 
-        let cat_editor = Entity::editor();
-        cat_editor.modify(cat.entity_mut()).unwrap();
+        let gray_cat_editor = Entity::editor();
+        gray_cat_editor.modify(gray_cat.entity_mut()).unwrap();
 
-        let cat = world.find_thing("gray_cat").unwrap();
-        assert_eq!("A slightly gray cat", cat.description().unwrap());
+        let gray_cat = world.find_thing("gray_cat").unwrap();
+        assert_eq!("A slightly gray cat", gray_cat.description().unwrap());
     }
 }

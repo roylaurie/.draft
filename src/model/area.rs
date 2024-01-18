@@ -151,6 +151,6 @@ impl Build for Area {
 }
 
 pub trait BuildableAreaVector {
-    fn add_area(&mut self, area: AreaBuilder) -> Result<ID>; 
+    fn add_area(&mut self, area: AreaBuilder) -> Result<()>; 
 }
 

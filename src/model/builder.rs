@@ -26,6 +26,7 @@ pub trait Builder: Sized {
     }
 }
 
+/// Provides the static creator() and editor() methods.
 pub trait Build {
     type BuilderType: Builder;
 
@@ -42,7 +43,7 @@ pub trait Build {
     }
 }
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum BuilderMode {
     Creator,
     Editor
@@ -98,9 +99,4 @@ impl Field {
     pub const fn value_type(&self) -> FieldValueType {
         self.value_type
     }
-}
-
-pub enum Optional<T> {
-    Some(Option<T>),
-    None(Option<T>)
 }
