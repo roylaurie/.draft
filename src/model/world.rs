@@ -127,8 +127,9 @@ impl BuildableDescriptor for WorldBuilder {
 impl BuildableAreaVector for WorldBuilder {
     fn add_area(&mut self, mut area: AreaBuilder) -> Result<ID> {
         let id = self.generate_id();
-        let identity = self.get_identity()
-            .expect("World Identity must be set before adding areas");
+        let identity = self.get_identity().ok_or_else(||
+            Error::FieldNotSetFirst{class: WorldField::CLASSNAME, field: WorldField::FIELDNAME_AREAS,
+                required_field: WorldField::FIELDNAME_IDENTITY})?;
         area.identity_builder().guid(
             id,
             identity.get_region_id()
@@ -154,6 +155,30 @@ impl WorldBuilder {
 
 impl Build for World {
     type BuilderType = WorldBuilder;
+}
+
+impl Identifiable for World {
+    fn identity(&self) -> &Identity {
+        &self.identity
+    }
+}
+
+impl IdentifiableMut for World {
+    fn identity_mut(&mut self) -> &mut Identity {
+        &mut self.identity
+    }
+}
+
+impl Descriptive for World {
+    fn descriptor(&self) -> &Descriptor {
+        &self.descriptor
+    }
+}
+
+impl DescriptiveMut for World {
+    fn descriptor_mut(&mut self) -> &mut Descriptor {
+        &mut self.descriptor
+    }
 }
 
 impl World {
