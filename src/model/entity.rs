@@ -8,6 +8,16 @@ pub struct Entity {
     //inventory: Inventory,
     //composition: Composition
 }
+
+pub trait Exists: Identifiable + Descriptive {
+    fn entity(&self) -> &Entity;
+}
+
+pub trait ExistsMut: Exists + IdentifiableMut + DescriptiveMut {
+    fn entity_mut(&mut self) -> &mut Entity;
+}
+
+#[derive(Debug)]
 pub enum EntityField {
     Identity,
     Descriptor,
@@ -37,7 +47,7 @@ impl EntityField {
     }
 }
 
-
+#[derive(Debug)]
 pub struct EntityBuilder {
     builder_mode: BuilderMode,
     identity: Option<IdentityBuilder>,
@@ -79,20 +89,14 @@ impl Builder for EntityBuilder {
         })
     }
 
-    fn modify(mut self, original: &mut Entity) -> Result<ModifyResult> {
-        let mut fields_changed = Vec::new();
-
-        if let Some(identity) = self.identity {
-            self.identity = Some(identity);
-            fields_changed.push(EntityField::Identity.field())
-        }
-        if let Some(descriptor) = self.descriptor {
-            self.descriptor = Some(descriptor);
-            fields_changed.push(EntityField::Identity.field())
-        }
-
-        Ok(ModifyResult::new(fields_changed))
+    fn modify(self, _original: &mut Entity) -> Result<ModifyResult> {
+        Ok(ModifyResult::new(Vec::new()))
     }
+}
+
+pub trait BuildableEntity: Builder {
+    fn entity(&mut self, entity: EntityBuilder) -> Result<()>; 
+    fn entity_builder(&mut self) -> &mut EntityBuilder;
 }
 
 impl BuildableIdentity for EntityBuilder {
@@ -107,6 +111,10 @@ impl BuildableIdentity for EntityBuilder {
         }
 
         self.identity.as_mut().unwrap()
+    }
+
+    fn get_identity(&self) -> Option<&IdentityBuilder> {
+        self.identity.as_ref()
     }
 }
 
@@ -125,13 +133,13 @@ impl BuildableDescriptor for EntityBuilder {
     }
 }
 
-impl Ident for Entity {
+impl Identifiable for Entity {
     fn identity(&self) -> &Identity {
         &self.identity
     }
 }
 
-impl IdentMut for Entity {
+impl IdentifiableMut for Entity {
     fn identity_mut(&mut self) -> &mut Identity {
         &mut self.identity
     }

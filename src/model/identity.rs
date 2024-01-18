@@ -1,4 +1,4 @@
-use crate::{s, model::{error::*, builder::*}};
+use crate::model::{error::*, builder::*};
 
 pub type ID = u64;
 pub type RegionID = u16;
@@ -13,7 +13,7 @@ pub struct Identity {
     universe_id: UniverseID,
 }
 
-pub trait Ident {
+pub trait Identifiable {
     fn identity(&self) -> &Identity;
 
     fn id(&self) -> ID {
@@ -34,17 +34,17 @@ pub trait Ident {
 
 }
 
-pub trait IdentMut: Ident {
+pub trait IdentifiableMut: Identifiable {
     fn identity_mut(&mut self) -> &mut Identity;
 }
 
-impl Ident for Identity {
+impl Identifiable for Identity {
     fn identity(&self) -> &Identity {
         self
     }
 }
 
-impl IdentMut for Identity {
+impl IdentifiableMut for Identity {
     fn identity_mut(&mut self) -> &mut Identity {
         self
     }
@@ -79,6 +79,7 @@ impl IdentityField {
     }
 }
 
+#[derive(Debug)]
 pub struct IdentityBuilder {
     builder_mode: BuilderMode,
     id: Option<ID>,
@@ -176,6 +177,22 @@ impl IdentityBuilder {
         self.universe_id(universe_id)?;
         Ok(())
     }
+
+    pub fn get_id(&self) -> Option<ID> {
+        self.id
+    }
+
+    pub fn get_region_id(&self) -> Option<RegionID> {
+        self.region_id
+    }
+
+    pub fn get_world_id(&self) -> Option<WorldID> {
+        self.world_id
+    }
+
+    pub fn get_universe_id(&self) -> Option<UniverseID> {
+        self.universe_id
+    }
 }
 
 impl Build for Identity {
@@ -185,6 +202,7 @@ impl Build for Identity {
 pub trait BuildableIdentity: Builder {
     fn identity(&mut self, identity: IdentityBuilder) -> Result<()>; 
     fn identity_builder(&mut self) -> &mut IdentityBuilder;
+    fn get_identity(&self) -> Option<&IdentityBuilder>;
 }
 
 impl Identity {

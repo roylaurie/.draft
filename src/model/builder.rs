@@ -72,6 +72,8 @@ pub enum FieldValueType {
     Float,
     Boolean,
     Object,
+    ObjectIDArray,
+    ObjectArray,
     StringArray
 }
 

@@ -97,6 +97,7 @@ impl DescriptorField {
     }
 }
 
+#[derive(Debug)]
 pub struct DescriptorBuilder {
     builder_mode: BuilderMode,
     name: Option<String>,

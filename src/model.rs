@@ -13,6 +13,7 @@ pub mod character;
 pub mod item;
 pub mod thing;
 pub mod area;
+pub mod route;
 pub mod access;
 pub mod world;
 
@@ -28,6 +29,7 @@ pub use character::*;
 pub use item::*;
 pub use thing::*;
 pub use area::*;
+pub use route::*;
 pub use world::*;
 
 #[cfg(test)]
@@ -35,21 +37,37 @@ mod tests {
     use crate::model::{self, *};
     use crate::s;
 
-    #[test]
-    fn test_manual_building() {
-        let mut litterbox = model::Area::builder();
-        litterbox.descriptor({
-            let mut descriptor = model::Descriptor::creator();
-            descriptor.key(s!("litter_box")).unwrap();
-            descriptor.name(s!("Litter Box")).unwrap();
-            descriptor.description(s!("A smelly litterbox")).unwrap();
-            descriptor
+    fn create_world() -> World {
+        let mut world_creator = model::World::creator();
+
+        world_creator.identity_builder().guid(0, 0, 1, 1).unwrap();
+
+        world_creator.descriptor({
+                let mut descriptor = model::Descriptor::creator();
+                descriptor.key(s!("world_01")).unwrap();
+                descriptor.name(s!("The World")).unwrap();
+                descriptor.description(s!("A miniature world")).unwrap();
+                descriptor
         }).unwrap();
 
-        let mut world = model::World::builder()
-            .area(litterbox)
-            .build().unwrap();
+        world_creator.add_area({
+            let mut area_creator = model::Area::creator();
+            area_creator.descriptor({
+                let mut descriptor = model::Descriptor::creator();
+                descriptor.key(s!("litter_box")).unwrap();
+                descriptor.name(s!("Litter Box")).unwrap();
+                descriptor.description(s!("A smelly litterbox")).unwrap();
+                descriptor
+            }).unwrap();
+            area_creator
+        }).unwrap();
 
+        world_creator.create().unwrap()
+    }
+
+    #[test]
+    fn test_manual_building() {
+        let mut world = create_world();
         dbg!(&world);
 
         let litterbox_id = world.find_area("litter_box")
