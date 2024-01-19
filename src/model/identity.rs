@@ -50,6 +50,7 @@ impl IdentifiableMut for Identity {
     }
 }
 
+#[derive(Clone, Copy, Debug)]
 pub enum IdentityField {
     ID,
     RegionID,
@@ -217,6 +218,12 @@ impl Identity {
             world_id: world_id,
             universe_id: universe_id,
         }
+    }
+
+    pub fn to_creator(&self) -> IdentityBuilder {
+        let mut creator = Identity::creator();
+        creator.guid(self.id, self.region_id, self.world_id, self.universe_id);
+        creator
     }
 }
 

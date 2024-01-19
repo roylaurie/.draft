@@ -47,6 +47,7 @@ mod tests {
                 descriptor.key(s!("unit_test_world")).unwrap();
                 descriptor.name(s!("Unit Test World")).unwrap();
                 descriptor.description(s!("A world where all models are equally buggy")).unwrap();
+                descriptor.notes(s!("Testing only")).unwrap();
                 descriptor
         }).unwrap();
 
@@ -54,9 +55,33 @@ mod tests {
             let mut area_creator = model::Area::creator();
             area_creator.descriptor({
                 let mut descriptor = model::Descriptor::creator();
-                descriptor.key(s!("litter_box")).unwrap();
-                descriptor.name(s!("Litter Box")).unwrap();
-                descriptor.description(s!("A smelly litter box")).unwrap();
+                descriptor.key(s!("backyard")).unwrap();
+                descriptor.name(s!("Backyard")).unwrap();
+                descriptor.description(s!("A well-manicured grass yard with orange trees lined along its border.")).unwrap();
+                descriptor
+            }).unwrap();
+            area_creator
+        }).unwrap();
+
+        world_creator.add_area({
+            let mut area_creator = model::Area::creator();
+            area_creator.descriptor({
+                let mut descriptor = model::Descriptor::creator();
+                descriptor.key(s!("cat_house")).unwrap();
+                descriptor.name(s!("cat_house")).unwrap();
+                descriptor.description(s!("A large playhouse for cats with multiple floors, windows, etc.")).unwrap();
+                descriptor
+            }).unwrap();
+            area_creator
+        }).unwrap();
+
+        world_creator.add_area({
+            let mut area_creator = model::Area::creator();
+            area_creator.descriptor({
+                let mut descriptor = model::Descriptor::creator();
+                descriptor.key(s!("dog_house")).unwrap();
+                descriptor.name(s!("Dog House")).unwrap();
+                descriptor.description(s!("A medium-sized dog house. It's just big enough for a single pet to lay.")).unwrap();
                 descriptor
             }).unwrap();
             area_creator
@@ -71,7 +96,37 @@ mod tests {
             character_creator.thing_builder()
         }).unwrap();
 
-        world_creator.create().unwrap()
+        let mut world = world_creator.create().unwrap();
+        let mut world_editor = World::editor();
+
+        world_editor.add_route({
+            let area_a = world.find_area("backyard").unwrap();
+            let area_b = world.find_area("dog_house").unwrap();
+            let mut route_creator = Route::creator();
+            route_creator.descriptor({
+                let mut descriptor_creator = Descriptor::creator();
+                descriptor_creator.key(s!("backyard_and_dog_house")).unwrap();
+                descriptor_creator.name(s!("Path between Backyard and Dog House")).unwrap();
+                descriptor_creator
+            }).unwrap();
+            route_creator.point_a({
+                let mut endpoint_creator = route::Endpoint::creator();
+                endpoint_creator.area_identity(area_a.identity().to_creator()).unwrap();
+                endpoint_creator.direction(Direction::West).unwrap();
+                endpoint_creator
+            }).unwrap();
+            route_creator.point_b({
+                let mut endpoint_creator = route::Endpoint::creator();
+                endpoint_creator.area_identity(area_b.identity().to_creator()).unwrap();
+                endpoint_creator.direction(Direction::East).unwrap();
+                endpoint_creator
+            }).unwrap();
+            route_creator
+        }).unwrap();
+
+        let _result = world_editor.modify(&mut world).unwrap();
+        
+        world
     }
 
     #[test]
@@ -79,7 +134,7 @@ mod tests {
         let world = create_world();
         dbg!(&world);
 
-        assert_eq!("Litter Box", world.find_area("litter_box").unwrap().name());
+        assert_eq!("Cat House", world.find_area("cat_house").unwrap().name());
         assert_eq!("Black Cat", world.find_thing("black_cat").unwrap().name());
     }
 
@@ -87,7 +142,7 @@ mod tests {
     fn test_spawn_thing() {
         let mut world = create_world();
 
-        let area = world.find_area("litter_box").unwrap();
+        let area = world.find_area("cat_house").unwrap();
 
         let mut character_creator = model::Character::creator();
         character_creator.entity({
@@ -112,7 +167,7 @@ mod tests {
     fn test_manual_building() {
         let mut world = create_world();
 
-        let litterbox_id = world.find_area("litter_box")
+        let litterbox_id = world.find_area("cat_house")
             .unwrap()
             .id();
 

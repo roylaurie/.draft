@@ -14,6 +14,8 @@ pub struct Descriptor {
     short_description: Option<String>,
     /// A detailed and narrative description.
     description: Option<String>,
+    /// Development notes from authors and editors. Not seen during normal play.
+    notes: Option<String>
 }
 
 /// The trait that provides standard immutable access to a `Descriptor` struct
@@ -46,6 +48,11 @@ pub trait Descriptive {
         self.descriptor().description.as_ref()
             .or_else(|| self.short_description())
     }
+
+    /// Development notes from authors and editors. Not seen during normal play.
+    fn notes(&self) -> Option<&String> {
+        self.descriptor().notes.as_ref()
+    }
 }
 
 pub trait DescriptiveMut: Descriptive {
@@ -69,7 +76,8 @@ pub enum DescriptorField {
     Keywords,
     Key,
     ShortDescription,
-    Description
+    Description,
+    Notes
 }
 
 impl DescriptorField {
@@ -79,12 +87,14 @@ impl DescriptorField {
     pub const FIELDNAME_KEY: &'static str = "key";
     pub const FIELDNAME_SHORT_DESCRIPTION: &'static str = "short_description";
     pub const FIELDNAME_DESCRIPTION: &'static str = "description";
+    pub const FIELDNAME_NOTES: &'static str = "notes";
 
     pub const FIELD_NAME: Field = Field::new(Self::FIELDNAME_NAME, FieldValueType::String);
     pub const FIELD_KEYWORDS: Field = Field::new(Self::FIELDNAME_KEYWORDS, FieldValueType::StringArray);
     pub const FIELD_KEY: Field = Field::new(Self::FIELDNAME_KEY, FieldValueType::String);
     pub const FIELD_SHORT_DESCRIPTION: Field = Field::new(Self::FIELDNAME_SHORT_DESCRIPTION, FieldValueType::String);
     pub const FIELD_DESCRIPTION: Field = Field::new(Self::FIELDNAME_DESCRIPTION, FieldValueType::String);
+    pub const FIELD_NOTES: Field = Field::new(Self::FIELDNAME_NOTES, FieldValueType::String);
 
     pub const fn field(&self) -> &'static Field {
         match self {
@@ -92,7 +102,8 @@ impl DescriptorField {
             Self::Keywords => &Self::FIELD_KEYWORDS,
             Self::Key => &Self::FIELD_KEY,
             Self::ShortDescription => &Self::FIELD_SHORT_DESCRIPTION,
-            Self::Description => &Self::FIELD_DESCRIPTION 
+            Self::Description => &Self::FIELD_DESCRIPTION,
+            Self::Notes => &Self::FIELD_NOTES
         }
     }
 }
@@ -104,7 +115,8 @@ pub struct DescriptorBuilder {
     keywords: Option<Vec<String>>,
     key: Option<String>,
     short_description: Option<String>,
-    description: Option<String>
+    description: Option<String>,
+    notes: Option<String>
 }
 
 impl Builder for DescriptorBuilder {
@@ -117,7 +129,8 @@ impl Builder for DescriptorBuilder {
             keywords: None,
             key: None,
             short_description: None,
-            description: None
+            description: None,
+            notes: None
         }
     }
 
@@ -139,7 +152,8 @@ impl Builder for DescriptorBuilder {
             keywords: self.keywords.unwrap_or_else(|| Vec::new()),
             key: self.key,
             short_description: self.short_description,
-            description: self.description
+            description: self.description,
+            notes: self.notes
         })
     }
 
@@ -154,6 +168,10 @@ impl Builder for DescriptorBuilder {
             original.description = self.description;
             fields_changed.push(DescriptorField::Description.field());
         }
+        if self.notes.is_some() {
+            original.notes = self.notes;
+            fields_changed.push(DescriptorField::Notes.field());
+        }
 
         Ok(ModifyResult::new(fields_changed))
     }
@@ -162,6 +180,7 @@ impl Builder for DescriptorBuilder {
         match raw_field {
             DescriptorField::FIELDNAME_NAME => self.name(raw_value)?,
             DescriptorField::FIELDNAME_DESCRIPTION => self.description(raw_value)?,
+            DescriptorField::FIELDNAME_NOTES => self.notes(raw_value)?,
             _ => bail!(Error::UnknownField{class: DescriptorField::CLASSNAME, field: s!(raw_field) })
         }
 
@@ -182,6 +201,11 @@ impl DescriptorBuilder {
 
     pub fn description(&mut self, description: String) -> Result<()> {
         self.description = Some(description);
+        Ok(())
+    }
+
+    pub fn notes(&mut self, notes: String) -> Result<()> {
+        self.notes = Some(notes);
         Ok(())
     }
 }

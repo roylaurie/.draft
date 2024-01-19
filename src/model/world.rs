@@ -1,18 +1,21 @@
-use crate::model::{error::*, builder::*, identity::*, descriptor::*, entity::*, thing::*, area::*};
+use crate::model::{error::*, builder::*, identity::*, descriptor::*, entity::*, thing::*, area::*, route::*};
 
 #[derive(Debug)]
 pub struct World {
     identity: Identity,
     descriptor: Descriptor,
     areas: Vec<Area>,
+    routes: Vec<Route>,
     things: Vec<Thing>,
     next_id: ID,
 }
 
+#[derive(Clone, Copy, Debug)]
 pub enum WorldField {
     Identity,
     Descriptor,
     Areas,
+    Routes,
     Things
 }
 
@@ -21,11 +24,13 @@ impl WorldField {
     pub const FIELDNAME_IDENTITY: &'static str = "identity";
     pub const FIELDNAME_DESCRIPTOR: &'static str = "descriptor";
     pub const FIELDNAME_AREAS: &'static str = "areas";
+    pub const FIELDNAME_ROUTES: &'static str = "routes";
     pub const FIELDNAME_THINGS: &'static str = "things";
 
     pub const FIELD_IDENTITY: Field = Field::new(Self::FIELDNAME_IDENTITY, FieldValueType::Object);
     pub const FIELD_DESCRIPTOR: Field = Field::new(Self::FIELDNAME_DESCRIPTOR, FieldValueType::Object);
     pub const FIELD_AREAS: Field = Field::new(Self::FIELDNAME_AREAS, FieldValueType::ObjectArray);
+    pub const FIELD_ROUTES: Field = Field::new(Self::FIELDNAME_ROUTES, FieldValueType::ObjectArray);
     pub const FIELD_THINGS: Field = Field::new(Self::FIELDNAME_THINGS, FieldValueType::ObjectArray);
 
     pub const fn field(&self) -> &'static Field {
@@ -33,6 +38,7 @@ impl WorldField {
             Self::Identity => &Self::FIELD_IDENTITY,
             Self::Descriptor => &Self::FIELD_DESCRIPTOR,
             Self::Areas => &Self::FIELD_AREAS,
+            Self::Routes => &Self::FIELD_ROUTES,
             Self::Things => &Self::FIELD_THINGS
         }
     }
@@ -44,6 +50,7 @@ pub struct WorldBuilder {
     identity: Option<IdentityBuilder>,
     descriptor: Option<DescriptorBuilder>,
     areas: Vec<AreaBuilder>,
+    routes: Vec<RouteBuilder>,
     things: Vec<ThingBuilder>,
     next_id: ID,
 }
@@ -57,6 +64,7 @@ impl Builder for WorldBuilder {
             identity: None,
             descriptor: None,
             areas: Vec::new(),
+            routes: Vec::new(),
             things: Vec::new(),
             next_id: 1
         }
@@ -80,6 +88,7 @@ impl Builder for WorldBuilder {
             .create()?;
 
         let mut next_id = self.generate_id();
+
         for area in &mut self.areas {
             let identity_builder = area.identity_builder();
             identity_builder.universe_id(identity.universe_id())?;
@@ -107,10 +116,13 @@ impl Builder for WorldBuilder {
                     Error::FieldNotSet {class: WorldField::CLASSNAME, field: WorldField::FIELDNAME_IDENTITY})?
                 .create()?,
             areas: self.areas.into_iter()
-                .map(|area| { area.create() })
+                .map(|area| area.create())
+                .collect::<Result<Vec<_>,_>>()?,
+            routes: self.routes.into_iter()
+                .map(|route| route.create())
                 .collect::<Result<Vec<_>,_>>()?,
             things: self.things.into_iter()
-                .map(|thing| { thing.create() })
+                .map(|thing| thing.create())
                 .collect::<Result<Vec<_>,_>>()?,
             next_id: self.next_id + 1,
         })
@@ -118,13 +130,27 @@ impl Builder for WorldBuilder {
 
     fn modify(self, original: &mut Self::Type) -> Result<ModifyResult> {
         for mut area in self.areas {
-            let identity_builder = area.identity_builder();
-            identity_builder.universe_id(original.identity().universe_id())?;
-            identity_builder.world_id(original.identity().world_id())?;
-            identity_builder.region_id(original.identity().region_id())?;
-            identity_builder.id(original.generate_id())?;
+            if !area.has_identity() {
+                let identity_builder = area.identity_builder();
+                identity_builder.universe_id(original.identity().universe_id())?;
+                identity_builder.world_id(original.identity().world_id())?;
+                identity_builder.region_id(original.identity().region_id())?;
+                identity_builder.id(original.generate_id())?;
+            }
 
             original.areas.push(area.create()?);
+        }
+
+        for mut route in self.routes {
+            if !route.has_identity() {
+                let identity_builder = route.identity_builder();
+                identity_builder.universe_id(original.identity().universe_id())?;
+                identity_builder.world_id(original.identity().world_id())?;
+                identity_builder.region_id(original.identity().region_id())?;
+                identity_builder.id(original.generate_id())?;
+            }
+
+            original.routes.push(route.create()?);
         }
 
         for mut thing in self.things {
@@ -185,6 +211,13 @@ impl BuildableDescriptor for WorldBuilder {
 impl BuildableAreaVector for WorldBuilder {
     fn add_area(&mut self, area: AreaBuilder) -> Result<()> {
         self.areas.push(area);
+        Ok(())
+    }
+}
+
+impl BuildableRouteVector for WorldBuilder {
+    fn add_route(&mut self, route: RouteBuilder) -> Result<()> {
+        self.routes.push(route);
         Ok(())
     }
 }

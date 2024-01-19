@@ -89,8 +89,19 @@ impl Builder for EntityBuilder {
         })
     }
 
-    fn modify(self, _original: &mut Entity) -> Result<ModifyResult> {
-        Ok(ModifyResult::new(Vec::new()))
+    fn modify(self, original: &mut Entity) -> Result<ModifyResult> {
+        let mut fields_changed = Vec::new();
+
+        if let Some(identity) = self.identity {
+            original.identity = identity.create()?;
+            fields_changed.push(EntityField::Identity.field())
+        }
+        if let Some(descriptor) = self.descriptor {
+            original.descriptor = descriptor.create()?;
+            fields_changed.push(EntityField::Descriptor.field())
+        }
+
+        Ok(ModifyResult::new(fields_changed))
     }
 }
 
