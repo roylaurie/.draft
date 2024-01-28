@@ -208,3 +208,8 @@ google-services.json
 
 # Android Profiling
 *.hprof
+
+
+# Added by cargo
+
+/target
