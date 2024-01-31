@@ -5,6 +5,7 @@ pub mod definition;
 pub mod account;
 pub mod index;
 pub mod statement;
+pub mod id;
 
 pub use error::*;
 pub use equation::*;
@@ -14,69 +15,6 @@ pub use definition::standard::*;
 pub use account::*;
 pub use index::*;
 pub use statement::*;
-
-pub mod id {
-    pub type DomainID = u32;
-    pub type ClassID  = u8;
-    pub type SerialID = u32;
-
-    #[derive(Debug, Copy, Clone, PartialEq, Eq)]
-    pub struct ID {
-        pub domain: DomainID,
-        pub class: ClassID,
-        pub serial: SerialID,
-    }
-
-    impl ID {
-        pub const ZERO: Self = Self::new(0,0,0);
-
-        pub const fn new(domain: DomainID, class: ClassID, serial: SerialID) -> Self {
-            Self {
-                domain,
-                class,
-                serial 
-            }
-        }
-
-        pub fn valid(&self) -> bool {
-            self.domain != 0 && self.class != 0 && self.serial != 0
-        }
-    }
-
-    impl Into<u128> for ID {
-        fn into(self) -> u128 {
-            0
-            | ((self.domain as u128) << 96)
-            | ((self.class as u128) << 88)
-            | ((self.serial as u128) << 56)
-        }
-    }
-
-    impl From<u128> for ID {
-        fn from(value: u128) -> Self {
-            Self {
-                domain: (value >> 96) as u32,
-                class: (value >> 88) as u8,
-                serial: (value >> 56) as u32
-            }
-        }
-    }
-
-    pub enum ClassIDs {
-        StandardAccountDefinition = 1,
-        CustomAccountDefinition = 2,
-    }
-
-    #[cfg(test)]
-    mod tests {
-        //use super::*;
-
-        #[test]
-        fn test_max_min_mid() {
-        }
-    }
-}
-
 pub use id::*;
 
 #[cfg(test)]
@@ -88,6 +26,12 @@ mod tests {
         let mut index = Index::standard(CommonCurrencies::USD);
         index.create_custom_account(String::from("Office Supplies"), &StandardAccounts::Supplies)?;
 
+        assert_eq!(
+            index.find_definition("Office Supplies").unwrap()
+                .parent(&index).unwrap().id(),
+            StandardAccounts::Supplies.id()
+        );
+
         index.debit(StandardAccounts::Cash, 100.00)?;
         index.credit(StandardAccounts::CommonStock, 100.00)?;
 
@@ -97,6 +41,7 @@ mod tests {
         assert_eq!(10.00, index.account_for("Office Supplies").balance());
         assert_eq!(90.00, index.account(StandardAccounts::Cash).balance());
         assert_eq!(100.00, index.account(StandardAccounts::CommonStock).balance());
+
 
         Ok(())
     }

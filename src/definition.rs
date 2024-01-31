@@ -84,12 +84,18 @@ pub struct StandardAccountDefinition {
     parent: Option<&'static AccountDefinition>,
 }
 
+impl ClassIdentityTrait for StandardAccountDefinition {
+    fn class_identity(&self) -> ClassIdentity {
+        Self::CLASS_IDENTITY
+    }
+}
+
 impl StandardAccountDefinition {
-    pub const CLASS_ID: ClassID = 1;
+    pub const CLASS_IDENTITY: ClassIdentity = ClassIdentity::StandardAccountDefinition; 
 
     pub const fn root(id_serial: u32, name: &'static str, equation_variable: Equation) -> AccountDefinition {
         AccountDefinition::Standard(Self {
-            id: ID::new(1, Self::CLASS_ID, id_serial),
+            id: ID::new(1, Self::CLASS_IDENTITY.into_class_id(), id_serial),
             name,
             equation_variable,
             parent: None,
@@ -104,7 +110,7 @@ impl StandardAccountDefinition {
         };
 
         AccountDefinition::Standard(Self {
-            id: ID::new(1, Self::CLASS_ID, id_serial),
+            id: ID::new(1, Self::CLASS_IDENTITY.into_class_id(), id_serial),
             name,
             equation_variable: parent_def.equation_variable_const(),
             parent: Some(parent),
@@ -175,8 +181,14 @@ impl AccountDefinitionTrait for CustomAccountDefinition {
     }
 }
 
+impl ClassIdentityTrait for CustomAccountDefinition {
+    fn class_identity(&self) -> ClassIdentity {
+        Self::CLASS_IDENTITY
+    }
+}
+
 impl CustomAccountDefinition {
-    pub const CLASS_ID: ClassID = ClassIDs::CustomAccountDefinition as ClassID;
+    pub const CLASS_IDENTITY: ClassIdentity = ClassIdentity::CustomAccountDefinition;
 
     pub fn new(id: ID, name: String, equation_variable: Equation, parent_id: ID) -> Self {
         Self {

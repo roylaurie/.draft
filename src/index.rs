@@ -20,9 +20,14 @@ impl Index {
     }
 
     pub fn definition(&self, definition_id: ID) -> Option<&AccountDefinition> {
-        match definition_id.class {
-            CustomAccountDefinition::CLASS_ID => self.custom_account_definitions.get(&definition_id.serial),
-            _ => todo!()
+        match ClassIdentity::from(definition_id.class) {
+            ClassIdentity::CustomAccountDefinition => self.custom_account_definitions.get(&definition_id.serial),
+            ClassIdentity::StandardAccountDefinition => {
+                StandardAccounts::iter()
+                    .find(|def| { def.id() == definition_id })
+                    .and_then(|std_def| Some(std_def.definition()))
+            },
+            _ => unreachable!("Unable to fetch AccountDefinition for unsupported Class ID {}", definition_id.class)
         }
     }
 
@@ -109,7 +114,7 @@ impl Index {
     }
 
     pub fn create_custom_account(&mut self, name: String, parent_definition: &impl AccountDefinitionTrait) -> Result<()> {
-        let def_id = ID::new(self.domain, CustomAccountDefinition::CLASS_ID, self.next_serial());
+        let def_id = ID::new(self.domain, CustomAccountDefinition::CLASS_IDENTITY.into(), self.next_serial());
         let definition = AccountDefinition::Custom(CustomAccountDefinition::new(
             def_id, 
             name,
