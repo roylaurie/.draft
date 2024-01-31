@@ -1,7 +1,7 @@
 pub type DomainID = u32;
 pub type ClassID  = u8;
 pub type SerialID = u32;
-pub type GUID      = u128;
+pub type GUID     = u128;
 
 const DOMAIN_BITS: usize = std::mem::size_of::<DomainID>() * 8;
 const CLASS_BITS:  usize = std::mem::size_of::<ClassID>()  * 8;
