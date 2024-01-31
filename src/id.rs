@@ -1,7 +1,7 @@
 pub type DomainID = u32;
 pub type ClassID  = u8;
 pub type SerialID = u32;
-pub type UID      = u128;
+pub type GUID      = u128;
 
 const DOMAIN_BITS: usize = std::mem::size_of::<DomainID>() * 8;
 const CLASS_BITS:  usize = std::mem::size_of::<ClassID>()  * 8;
@@ -29,8 +29,8 @@ impl ID {
     }
 }
 
-impl Into<UID> for ID {
-    fn into(self) -> UID {
+impl Into<GUID> for ID {
+    fn into(self) -> GUID {
         0
         | ((self.domain as u128) << DOMAIN_BITS)
         | ((self.class as u128) << CLASS_BITS)
@@ -38,8 +38,8 @@ impl Into<UID> for ID {
     }
 }
 
-impl From<UID> for ID {
-    fn from(value: UID) -> Self {
+impl From<GUID> for ID {
+    fn from(value: GUID) -> Self {
         Self {
             domain: (value >> DOMAIN_BITS) as u32,
             class: (value >> CLASS_BITS) as u8,
@@ -110,7 +110,7 @@ mod tests {
 
         for (domain_id, class_id, serial_id) in expected {
             let id = ID::new(domain_id, class_id, serial_id);
-            let uid: UID = id.into();
+            let uid: GUID = id.into();
             let id = ID::from(uid);
 
             assert_eq!(domain_id, id.domain);
