@@ -16,6 +16,7 @@ pub struct ID {
 
 impl ID {
     pub const ZERO: Self = Self::new(0,0,0);
+
     pub const fn new(domain: DomainID, class: ClassID, serial: SerialID) -> Self {
         Self {
             domain,
@@ -24,13 +25,19 @@ impl ID {
         }
     }
 
-    pub fn valid(&self) -> bool {
+    pub const fn valid(&self) -> bool {
         self.domain != 0 && self.class != 0 && self.serial != 0
     }
-}
 
-impl Into<GUID> for ID {
-    fn into(self) -> GUID {
+    pub const fn from_guid(value: GUID) -> Self {
+        Self {
+            domain: (value >> DOMAIN_BITS) as u32,
+            class: (value >> CLASS_BITS) as u8,
+            serial: (value >> SERIAL_BITS) as u32
+        }
+    }
+
+    pub const fn into_guid(self) -> GUID {
         0
         | ((self.domain as u128) << DOMAIN_BITS)
         | ((self.class as u128) << CLASS_BITS)
@@ -38,13 +45,15 @@ impl Into<GUID> for ID {
     }
 }
 
+impl Into<GUID> for ID {
+    fn into(self) -> GUID {
+        self.into_guid()
+    }
+}
+
 impl From<GUID> for ID {
     fn from(value: GUID) -> Self {
-        Self {
-            domain: (value >> DOMAIN_BITS) as u32,
-            class: (value >> CLASS_BITS) as u8,
-            serial: (value >> SERIAL_BITS) as u32
-        }
+        Self::from_guid(value)
     }
 }
 
