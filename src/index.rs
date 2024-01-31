@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::{account::*, currency::*, definition::standard::*, equation::*, error::*, id::*, statement::equation_balance::*, definition::*};
+use crate::{account::*, currency::*, definition::standard::*, definition::*, equation::*, error::*, id::*, statement::equation_balance::*, ACCT_SYSTEM_ID, ACCT_VERSION_ID};
 
 /// aka Chart of Accounts
 pub struct Index {
@@ -119,6 +119,8 @@ impl Index {
 
     pub fn create_custom_account(&mut self, name: String, parent_definition: &impl AccountDefinitionTrait) -> Result<()> {
         let def_id = ID::v1(
+            ACCT_SYSTEM_ID,
+            ACCT_VERSION_ID,
             CustomAccountDefinition::CLASS_IDENTITY.into_class_id(),
             self.authority,
             self.domain,

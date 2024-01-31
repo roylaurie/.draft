@@ -17,6 +17,9 @@ pub use index::*;
 pub use statement::*;
 pub use id::*;
 
+pub const ACCT_SYSTEM_ID:   SystemID = 1;
+pub const ACCT_VERSION_ID: VersionID = 1;
+
 #[cfg(test)]
 mod tests {
     use super::*;

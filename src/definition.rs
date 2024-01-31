@@ -1,6 +1,6 @@
 pub mod standard;
 
-use crate::{definition::standard::*, equation::*, id::*, index::Index};
+use crate::{definition::standard::*, equation::*, id::*, index::Index, ACCT_SYSTEM_ID, ACCT_VERSION_ID};
 
 pub trait AccountDefinitionTrait {
     fn id(&self) -> ID;
@@ -95,7 +95,7 @@ impl StandardAccountDefinition {
 
     pub const fn root(id_serial: u32, name: &'static str, equation_variable: Equation) -> AccountDefinition {
         AccountDefinition::Standard(Self {
-            id: ID::v1_system(Self::CLASS_IDENTITY.into_class_id(), id_serial),
+            id: ID::v1_system(ACCT_SYSTEM_ID, ACCT_VERSION_ID, Self::CLASS_IDENTITY.into_class_id(), id_serial),
             name,
             equation_variable,
             parent: None,
@@ -110,7 +110,7 @@ impl StandardAccountDefinition {
         };
 
         AccountDefinition::Standard(Self {
-            id: ID::v1_system(Self::CLASS_IDENTITY.into_class_id(), id_serial),
+            id: ID::v1_system(ACCT_SYSTEM_ID, ACCT_VERSION_ID, Self::CLASS_IDENTITY.into_class_id(), id_serial),
             name,
             equation_variable: parent_def.equation_variable_const(),
             parent: Some(parent),
