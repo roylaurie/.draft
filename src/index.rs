@@ -4,7 +4,9 @@ use crate::{account::*, currency::*, definition::standard::*, equation::*, error
 
 /// aka Chart of Accounts
 pub struct Index {
+    authority: AuthorityID,
     domain: DomainID,
+    segment: SegmentID,
     next_serial: SerialID,
     custom_account_definitions: HashMap<SerialID, AccountDefinition>,
     asset_accounts: Vec<Account>,
@@ -45,7 +47,9 @@ impl Index {
 
     pub fn standard(currency: CommonCurrencies) -> Self {
         Self {
-            domain: 0,
+            authority: 0, //todo
+            domain: 0, //todo
+            segment: 0, //todo
             next_serial: 1,
             custom_account_definitions: HashMap::new(),
             asset_accounts: StandardAccounts::iter()
@@ -114,7 +118,12 @@ impl Index {
     }
 
     pub fn create_custom_account(&mut self, name: String, parent_definition: &impl AccountDefinitionTrait) -> Result<()> {
-        let def_id = ID::new(self.domain, CustomAccountDefinition::CLASS_IDENTITY.into(), self.next_serial());
+        let def_id = ID::v1(
+            CustomAccountDefinition::CLASS_IDENTITY.into_class_id(),
+            self.authority,
+            self.domain,
+            self.segment,
+            self.next_serial());
         let definition = AccountDefinition::Custom(CustomAccountDefinition::new(
             def_id, 
             name,

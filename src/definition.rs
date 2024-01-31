@@ -95,7 +95,7 @@ impl StandardAccountDefinition {
 
     pub const fn root(id_serial: u32, name: &'static str, equation_variable: Equation) -> AccountDefinition {
         AccountDefinition::Standard(Self {
-            id: ID::new(1, Self::CLASS_IDENTITY.into_class_id(), id_serial),
+            id: ID::v1_system(Self::CLASS_IDENTITY.into_class_id(), id_serial),
             name,
             equation_variable,
             parent: None,
@@ -110,7 +110,7 @@ impl StandardAccountDefinition {
         };
 
         AccountDefinition::Standard(Self {
-            id: ID::new(1, Self::CLASS_IDENTITY.into_class_id(), id_serial),
+            id: ID::v1_system(Self::CLASS_IDENTITY.into_class_id(), id_serial),
             name,
             equation_variable: parent_def.equation_variable_const(),
             parent: Some(parent),
