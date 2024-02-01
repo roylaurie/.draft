@@ -1,10 +1,9 @@
 use std::collections::HashMap;
 
-use crate::{account::*, currency::*, definition::standard::*, definition::*, equation::*, error::*, id::*, statement::equation_balance::*, ACCT_SYSTEM_ID, ACCT_VERSION_ID};
+use crate::{account::*, currency::*, definition::standard::*, definition::*, equation::*, error::*, id::*, statement::equation_balance::*, ACCT_SYSTEM_ID};
 
 /// aka Chart of Accounts
 pub struct Index {
-    authority: AuthorityID,
     domain: DomainID,
     segment: SegmentID,
     next_serial: SerialID,
@@ -22,9 +21,9 @@ impl Index {
     }
 
     pub fn definition(&self, definition_id: ID) -> Option<&AccountDefinition> {
-        match ClassIdentity::from(definition_id.class) {
-            ClassIdentity::CustomAccountDefinition => self.custom_account_definitions.get(&definition_id.serial),
-            ClassIdentity::StandardAccountDefinition => {
+        match AccountClassIdentity::from(definition_id.class) {
+            AccountClassIdentity::CustomAccountDefinition => self.custom_account_definitions.get(&definition_id.serial),
+            AccountClassIdentity::StandardAccountDefinition => {
                 StandardAccounts::iter()
                     .find(|def| { def.id() == definition_id })
                     .and_then(|std_def| Some(std_def.definition()))
@@ -47,7 +46,6 @@ impl Index {
 
     pub fn standard(currency: CommonCurrencies) -> Self {
         Self {
-            authority: 0, //todo
             domain: 0, //todo
             segment: 0, //todo
             next_serial: 1,
@@ -120,9 +118,7 @@ impl Index {
     pub fn create_custom_account(&mut self, name: String, parent_definition: &impl AccountDefinitionTrait) -> Result<()> {
         let def_id = ID::v1(
             ACCT_SYSTEM_ID,
-            ACCT_VERSION_ID,
             CustomAccountDefinition::CLASS_IDENTITY.into_class_id(),
-            self.authority,
             self.domain,
             self.segment,
             self.next_serial());
