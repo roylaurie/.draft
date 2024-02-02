@@ -44,7 +44,7 @@ impl EquationBalance {
         println!("|-{:-^12}-|-{:-^13}-|-{:-^12}-|", '-', '-', '-');
         println!("| {:^12} | {:^13} | {:^12} |", assets, liabilities, equity);
         println!("|{:-^45}|", '-');
-        println!("| {:^12} | {:^28} |", credit_side, debit_side);
+        println!("| {:^12} | {:^28} |", debit_side, credit_side);
         println!("+{:=^45}+", '=');
         println!();
     }

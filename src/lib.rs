@@ -40,41 +40,10 @@ mod tests {
         index.credit(StandardAccounts::Cash, 10.00)?;
         index.debit_for("Office Supplies", 10.00)?;
 
-        assert_eq!(10.00, index.account_for("Office Supplies").balance());
-        assert_eq!(90.00, index.account(StandardAccounts::Cash).balance());
-        assert_eq!(100.00, index.account(StandardAccounts::CommonStock).balance());
+        assert_eq!(10.00, index.account_for("Office Supplies")?.balance_noncurrent());
+        assert_eq!(90.00, index.account(StandardAccounts::Cash)?.balance_noncurrent());
+        assert_eq!(100.00, index.account(StandardAccounts::CommonStock)?.balance_noncurrent());
 
-
-        Ok(())
-    }
-
-    #[test]
-    fn it_works() -> Result<()> {
-        let mut accounts = Index::standard(CommonCurrencies::USD);
-        //let mut journal = Journal::new();
-
-        /*journal.entry_builder()
-              .debit(StandardAccount::Cash, 25_000.00)
-              .credit(StandardAccount::CommonStock, 25_000.00)
-              .build();
-        
-          accounts.process(journal)?;
-        })*/
-        accounts.debit(StandardAccounts::Cash, 25_000.00)?;
-        accounts.credit(StandardAccounts::CommonStock, 25_000.00)?;
-        accounts.equation_balance().print_table_entitled("Transaction A");
-
-        accounts.debit(StandardAccounts::RealEstate, 20_000.00)?;
-        accounts.credit(StandardAccounts::Cash, 20_000.00)?;
-        accounts.equation_balance().print_table_entitled("Transaction B");
-
-        accounts.debit(StandardAccounts::Supplies, 1_350.00)?;
-        accounts.credit(StandardAccounts::AccountsPayable, 1_350.00)?;
-        accounts.equation_balance().print_table_entitled("Transaction C");
-
-        accounts.debit(StandardAccounts::Cash, 7_500.00)?;
-        accounts.credit(StandardAccounts::FeesEarned, 7_500.00)?;
-        accounts.equation_balance().print_table_entitled("Transaction D");
 
         Ok(())
     }

@@ -1,8 +1,10 @@
 use std::collections::HashMap;
+use thousands::{self, Separable};
 
 use crate::{account::*, currency::*, definition::standard::*, definition::*, equation::*, error::*, id::*, statement::equation_balance::*, ACCT_SYSTEM_ID};
 
 /// aka Chart of Accounts
+#[derive(Debug)]
 pub struct Index {
     domain: DomainID,
     segment: SegmentID,
@@ -67,7 +69,7 @@ impl Index {
         }
     }
 
-    pub fn account<D: AsRef<AccountDefinition>>(&self, definition: D) -> &Account {
+    pub fn account<D: AsRef<AccountDefinition>>(&self, definition: D) -> Result<&Account> {
         let definition = definition.as_ref();
         let mut iter = match definition.equation_variable() {
             Equation::Assets => self.asset_accounts.iter(),
@@ -76,14 +78,16 @@ impl Index {
         };
 
         let def_id = definition.id();
-        iter
-            .find(|account| { def_id == account.definition_id() })
-            .unwrap()
+        iter.find(|account| def_id == account.definition_id())
+            .ok_or_else(|| Error::AccountNotFound(definition.name().to_string()))
+
     }
 
-    pub fn account_for<S: AsRef<str>>(&self, definition_name: S) -> &Account {
+    pub fn account_for<S: AsRef<str>>(&self, definition_name: S) -> Result<&Account> {
+        let definition_name = definition_name.as_ref();
         let (def_id, def_eqvar) = {
-            let definition = self.find_definition(definition_name.as_ref()).unwrap();
+            let definition = self.find_definition(definition_name)
+                .ok_or_else(|| Error::DefinitionNotFound(definition_name.to_string()))?;
             (definition.id(), definition.equation_variable())
         };
 
@@ -93,20 +97,52 @@ impl Index {
             Equation::Equity => self.equity_accounts.iter()
         };
 
-        iter
-            .find(|account| { account.definition_id() == def_id })
-            .unwrap()
+        iter.find(|account| { account.definition_id() == def_id })
+            .ok_or_else(|| Error::AccountNotFound(definition_name.to_string()))
     }
 
+    pub fn account_children(&self, parent: &Account) -> Vec<&Account> {
+        let (definition_id, equation_element) = {
+            let definition = parent.definition(self);
+            (definition.id(), definition.equation_variable())
+        };
 
-    fn account_mut(&mut self, definition_id: ID, equation_variable: Equation) -> &mut Account {
+        let iter = match equation_element {
+            Equation::Assets => self.asset_accounts.iter(),
+            Equation::Liabilities => self.liability_accounts.iter(),
+            Equation::Equity => self.equity_accounts.iter()
+        };
+
+        iter
+            .filter(|acct| {
+                if let Some(parent_id) = acct.definition(self).parent_id() {
+                    parent_id == definition_id
+                } else {
+                    false
+                }
+            })
+            .collect()
+    }
+
+    pub fn account_descendants(&self, parent: &Account) -> Vec<&Account> {
+        let mut children = self.account_children(parent);
+        let mut descendants = children.iter()
+            .map(|acct| self.account_descendants(acct))
+            .flatten()
+            .collect::<Vec<&Account>>();
+        children.append(&mut descendants);
+        children
+    }
+
+    pub fn account_mut(&mut self, definition_id: ID, equation_variable: Equation) -> Result<&mut Account> {
         let mut iter = match equation_variable {
             Equation::Assets => self.asset_accounts.iter_mut(),
             Equation::Liabilities => self.liability_accounts.iter_mut(),
             Equation::Equity => self.equity_accounts.iter_mut()
         };
 
-        iter.find(|account| account.definition_id() == definition_id).unwrap()
+        iter.find(|account| account.definition_id() == definition_id)
+            .ok_or_else(|| Error::AccountNotFound(definition_id.into_uid().to_string()))
     }
 
     fn next_serial(&mut self) -> SerialID {
@@ -141,7 +177,7 @@ impl Index {
 
 
     pub fn debit<D: AsRef<AccountDefinition>>(&mut self, definition: D, amount: f64) -> Result<f64> {
-        let account = self.account_mut(definition.as_ref().id(), definition.as_ref().equation_variable());
+        let account = self.account_mut(definition.as_ref().id(), definition.as_ref().equation_variable())?;
 
         let balance = match definition.as_ref().equation_variable().equation_side() {
             EquationSide::DebitSide => account.increase_balance(amount),
@@ -152,12 +188,14 @@ impl Index {
     }
 
     pub fn debit_for<S: AsRef<str>>(&mut self, definition_name: S, amount: f64) -> Result<f64> {
+        let definition_name = definition_name.as_ref();
         let (def_id, def_eqvar) = {
-            let definition = self.find_definition(definition_name.as_ref()).unwrap();
+            let definition = self.find_definition(definition_name)
+                .ok_or_else(|| Error::DefinitionNotFound(definition_name.to_string()))?;
             (definition.id(), definition.equation_variable())
         };
 
-        let account = self.account_mut(def_id, def_eqvar);
+        let account = self.account_mut(def_id, def_eqvar)?;
 
         let balance = match def_eqvar.equation_side() {
             EquationSide::DebitSide => account.increase_balance(amount),
@@ -168,7 +206,7 @@ impl Index {
     }
 
     pub fn credit<D: AsRef<AccountDefinition>>(&mut self, definition: D, amount: f64) -> Result<f64> {
-        let account = self.account_mut(definition.as_ref().id(), definition.as_ref().equation_variable());
+        let account = self.account_mut(definition.as_ref().id(), definition.as_ref().equation_variable())?;
 
         let balance = match definition.as_ref().equation_variable().equation_side() {
             EquationSide::DebitSide => account.decrease_balance(amount),
@@ -179,12 +217,15 @@ impl Index {
     }
 
     pub fn credit_for<S: AsRef<str>>(&mut self, definition_name: S, amount: f64) -> Result<f64> {
+        let definition_name = definition_name.as_ref();
+
         let (def_id, def_eqvar) = {
-            let definition = self.find_definition(definition_name.as_ref()).unwrap();
+            let definition = self.find_definition(definition_name)
+                .ok_or_else(|| Error::DefinitionNotFound(definition_name.to_string()))?;
             (definition.id(), definition.equation_variable())
         };
 
-        let account = self.account_mut(def_id, def_eqvar);
+        let account = self.account_mut(def_id, def_eqvar)?;
 
         let balance = match def_eqvar.equation_side() {
             EquationSide::DebitSide => account.decrease_balance(amount),
@@ -196,10 +237,51 @@ impl Index {
 
 
     pub fn equation_balance(&self) -> EquationBalance {
-        let assets = self.asset_accounts.iter().map(|a| a.balance()).sum();
-        let liabilities = self.liability_accounts.iter().map(|a| a.balance()).sum();
-        let equity = self.equity_accounts.iter().map(|a| a.balance()).sum();
+        let assets = self.asset_accounts.iter()
+            .filter(|acct| acct.definition(self).parent_id().is_none())
+            .map(|acct| acct.balance(self))
+            .sum();
+
+        let liabilities = self.liability_accounts.iter()
+            .filter(|acct| acct.definition(self).parent_id().is_none())
+            .map(|a| a.balance(self))
+            .sum();
+
+        let equity = self.equity_accounts.iter()
+            .filter(|acct| acct.definition(self).parent_id().is_none())
+            .map(|acct| acct.balance(self))
+            .sum();
+
         EquationBalance::new(assets, liabilities, equity)
+    }
+
+    pub fn print_accounts(&self) {
+        println!("[ASSETS]");
+        for account in &self.asset_accounts {
+            println!("{} = ${}",
+                account.definition(&self).name(),
+                account.balance(self).separate_with_commas())
+        }
+
+        println!();
+        println!("[EQUITY]");
+
+        for account in &self.equity_accounts {
+            println!("{} = ${}",
+                account.definition(&self).name(),
+                account.balance(self).separate_with_commas())
+        }
+
+        println!();
+        println!("[LIABILITIES]");
+
+        for account in &self.liability_accounts {
+            println!("{} = ${}",
+                account.definition(&self).name(),
+                account.balance(self).separate_with_commas())
+        }
+
+        println!();
     }
 
 }

@@ -4,6 +4,7 @@ pub trait CurrencyTrait {
     fn name(&self) -> &str;
 }
 
+#[derive(Debug)]
 pub enum Currency {
     Common(&'static CommonCurrency),
     Custom(CustomCurrency)

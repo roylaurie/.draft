@@ -6,4 +6,5 @@ edition = "2021"
 [dependencies]
 serde = { version = "1.0.196", features = ["derive"] }
 strum = { version = "0.26.1", features = ["derive"] }
+thiserror = "1.0.56"
 thousands = "0.2.0"

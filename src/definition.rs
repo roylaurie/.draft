@@ -6,6 +6,7 @@ pub trait AccountDefinitionTrait {
     fn id(&self) -> ID;
     fn name(&self) -> &str;
     fn equation_variable(&self) -> Equation;
+    fn parent_id(&self) -> Option<ID>;
     fn parent<'index>(&self, index: &'index Index) -> Option<&'index AccountDefinition>;
     fn is_standard(&self) -> bool;
 }
@@ -28,6 +29,13 @@ impl AccountDefinitionTrait for AccountDefinition {
         match self {
             AccountDefinition::Standard(def) => def.equation_variable(),
             AccountDefinition::Custom(def) => def.equation_variable(),
+        }
+    }
+
+    fn parent_id(&self) -> Option<ID> {
+        match self {
+            AccountDefinition::Standard(def) => def.parent_id(),
+            AccountDefinition::Custom(def) => def.parent_id(),
         }
     }
 
@@ -73,6 +81,10 @@ impl AccountDefinitionTrait for StandardAccounts {
 
     fn id(&self) -> ID {
         self.definition().id()
+    }
+
+    fn parent_id(&self) -> Option<ID> {
+        self.definition().parent_id()
     }
 }
 
@@ -132,6 +144,11 @@ impl AccountDefinitionTrait for StandardAccountDefinition {
         self.parent
     }
 
+    fn parent_id(&self) -> Option<ID> {
+        self.parent
+            .and_then(|parent| Some(parent.id()))
+    }
+
     fn is_standard(&self) -> bool {
         true
     }
@@ -178,6 +195,10 @@ impl AccountDefinitionTrait for CustomAccountDefinition {
 
     fn id(&self) -> ID {
         self.id
+    }
+
+    fn parent_id(&self) -> Option<ID> {
+        self.parent_id
     }
 }
 

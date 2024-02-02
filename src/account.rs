@@ -1,4 +1,4 @@
-use crate::{id::*, index::*, definition::{*, standard::*}};
+use crate::{id::*, index::*, definition::{self, standard::*, *}};
 
 #[derive(Debug)]
 pub struct Account {
@@ -33,11 +33,18 @@ impl Account {
         self.definition_id = definition_id
     }
 
-    pub fn balance(&self) -> f64 {
+    pub fn balance(&self, index: &Index) -> f64 {
+        self.balance + index.account_descendants(self)
+            .iter()
+            .map(|acct| acct.balance_noncurrent())
+            .sum::<f64>()
+    }
+
+    pub fn balance_noncurrent(&self) -> f64 {
         self.balance
     }
 
-    pub fn set_balance(&mut self, amount: f64) -> f64 {
+    pub fn set_balance_noncurrent(&mut self, amount: f64) -> f64 {
         self.balance = amount;
         self.balance
     }
